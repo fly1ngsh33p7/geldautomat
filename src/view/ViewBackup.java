@@ -3,17 +3,16 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
-public class View {
+public class ViewBackup {
     private JFrame frame;
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private LoginScreen loginScreen;
     private AccountScreen accountScreen;
 
-    public View() {
+    public ViewBackup() {
         frame = new JFrame("GUI Application");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
 
         // Create the card layout and panel to hold screens
         cardLayout = new CardLayout();
@@ -50,7 +49,7 @@ public class View {
         cardLayout.show(cardPanel, "Login");
 
         // Set the frame size, pack, and make it visible
-        frame.setPreferredSize(new Dimension(390, 210));
+        frame.setPreferredSize(new Dimension(400, 300));
         frame.pack();
         frame.setVisible(true);
     }

@@ -1,3 +1,4 @@
+import model.Model;
 import view.View;
 
 import javax.swing.*;
@@ -9,6 +10,8 @@ public class Main {
 
         fileChooser.showOpenDialog(null);
         File selectedFile = fileChooser.getSelectedFile();
+        
+        Model model = new Model(selectedFile);
 
         View view = new View();
     }

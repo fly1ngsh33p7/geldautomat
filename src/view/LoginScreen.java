@@ -2,7 +2,6 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.border.BevelBorder;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 

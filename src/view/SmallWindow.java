@@ -6,68 +6,72 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class SmallWindow extends JFrame {
-        private JTextField inputField;
-        private JButton submitButton;
-        private JButton cancelButton;
-        private  JPanel panel;
-    public SmallWindow(JFrame parentFrame) {
-        initSmallWindow(parentFrame);
-    }
+	private JTextField inputField;
+	private JButton submitButton;
+	private JButton cancelButton;
+	private JPanel panel;
 
-    public SmallWindow(JFrame parentFrame, String submitAndWindowlabel) {
-        this(parentFrame);
+	/**
+	 * @wbp.parser.constructor
+	 */
+	public SmallWindow(JFrame parentFrame) {
+		initSmallWindow(parentFrame);
+	}
 
-        setTitle(submitAndWindowlabel);
-        this.submitButton.setText(submitAndWindowlabel);
-    }
+	public SmallWindow(JFrame parentFrame, String submitAndWindowlabel) {
+		this(parentFrame);
 
-    private void initSmallWindow(JFrame parentFrame) {
+		setTitle(submitAndWindowlabel);
+		this.submitButton.setText(submitAndWindowlabel);
+	}
 
-        setTitle("Small Window");
-        setPreferredSize(new Dimension(300, 150));
+	private void initSmallWindow(JFrame parentFrame) {
 
-        // Create the input field for values in euros and cents
-        inputField = new JTextField(10);
+		setTitle("Small Window");
+		setPreferredSize(new Dimension(300, 150));
 
-        // Create the submit and cancel buttons
-        submitButton = new JButton("Submit");
-        cancelButton = new JButton("Abbrechen");
+		// Create the input field for values in euros and cents
+		inputField = new JTextField(10);
 
-        // Add action listeners to the buttons
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Process the submitted value
-                String value = inputField.getText();
-                // Perform any necessary actions with the submitted value
-                // ...
+		// Create the submit and cancel buttons
+		submitButton = new JButton("Submit");
+		cancelButton = new JButton("Abbrechen");
 
-                // Close the small window
-                dispose();
-            }
-        });
+		// Add action listeners to the buttons
+		submitButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Process the submitted value
+				String value = inputField.getText();
+				// Perform any necessary actions with the submitted value
+				// ...
 
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Close the small window
-                dispose();
-            }
-        });
+				// Close the small window
+				dispose();
+			}
+		});
 
-        // Create a panel to hold the components
-        panel = new JPanel();
-        panel.add(inputField);
-        panel.add(submitButton);
-        panel.add(cancelButton);
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Close the small window
+				dispose();
+			}
+		});
 
-        // Add the panel to the small window
-        add(panel);
+		// Create a panel to hold the components
+		panel = new JPanel();
+		panel.add(inputField);
+		panel.add(submitButton);
+		panel.add(cancelButton);
 
-        // Set the location of the small window relative to the parent frame
-        setLocationRelativeTo(parentFrame);
+		// Add the panel to the small window
+		getContentPane().add(panel);
 
-        // Pack and make the small window visible
-        pack();
-    }
+		// Set the location of the small window relative to the parent frame
+		setLocationRelativeTo(parentFrame);
+
+		// Pack and make the small window visible
+		pack();
+	}
 }

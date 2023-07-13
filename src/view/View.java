@@ -27,7 +27,9 @@ public class View {
 
         // Add the card panel to the main frame
         frame.getContentPane().add(cardPanel);
-
+    }
+    
+    public void setupGUI() {
         // Create a button on the login screen to switch to the account screen
         loginScreen.getLoginButton().addActionListener(e -> cardLayout.show(cardPanel, "Account"));
 
@@ -45,7 +47,8 @@ public class View {
             SmallWindow smallWindow = new SmallWindow(frame, "Einzahlen");
             smallWindow.setVisible(true);
         });
-
+        
+        
         // Display the login screen initially
         cardLayout.show(cardPanel, "Login");
 

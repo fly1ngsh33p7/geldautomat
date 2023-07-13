@@ -1,24 +1,24 @@
 package control;
 
-import model.Model;
+import model.BankManagementSystem;
 import view.View;
 
 public class Control {
-    private static Model model;
+    private static BankManagementSystem bms;
     private static View view;
 
-    public static void initialize(Model m, View v) {
-        model = m;
-        view = v;
+    public Control(BankManagementSystem bms, View view) {
+        this.bms = bms;
+        this.view = view;
     }
 
     public static void processUserInput(String input) {
         // Process the user input
         // Example implementation:
-        //model.processInput(input);
+        //bms.processInput(input);
 
-        // Retrieve the updated data from the Model
-        //String data = model.getData();
+        // Retrieve the updated data from the bms
+        //String data = bms.getData();
 
         // Update the View with the updated data
         //view.displayData(data);

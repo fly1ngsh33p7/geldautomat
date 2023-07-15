@@ -1,6 +1,7 @@
 package model;
 
 public class SavingAccount extends Account {
+	// interest in percent
 	private double interest;
 
 	public SavingAccount(int accountNumber, int pin, double balance, Bank bank, Owner owner, double interest) {

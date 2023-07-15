@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Objects;
+
 public class Owner {
 	private int customerNumber;
 	private String lastName;
@@ -16,6 +18,16 @@ public class Owner {
 		this.customerNumber = customerNumber;
 	}
 	
+	public Owner(int customerNumber, String lastName, String firstName, String postalCode, String location,
+			String street) {
+		this.customerNumber = customerNumber;
+		this.lastName = lastName;
+		this.firstName = firstName;
+		this.postalCode = postalCode;
+		this.location = location;
+		this.street = street;
+	}
+
 	public String getLastName() {
 		return lastName;
 	}
@@ -54,5 +66,24 @@ public class Owner {
 	
 	public void setStreet(String street) {
 		this.street = street;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(customerNumber, firstName, lastName, location, postalCode, street);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Owner)) {
+			return false;
+		}
+		Owner other = (Owner) obj;
+		return customerNumber == other.customerNumber && Objects.equals(firstName, other.firstName)
+				&& Objects.equals(lastName, other.lastName) && Objects.equals(location, other.location)
+				&& Objects.equals(postalCode, other.postalCode) && Objects.equals(street, other.street);
 	}
 }

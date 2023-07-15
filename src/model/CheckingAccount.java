@@ -6,8 +6,8 @@ package model;
 public class CheckingAccount extends Account {
 	private double overdraftAmount;
 	
-	public CheckingAccount(double overdraftAmount, int accountNumber, int pin, Bank bank, Owner owner) {
-		super(accountNumber, pin, overdraftAmount, bank, owner);
+	public CheckingAccount(int accountNumber, int pin, double balance, Bank bank, Owner owner, double overdraftAmount) {
+		super(accountNumber, pin, balance, bank, owner);
 		this.overdraftAmount = overdraftAmount;
 	}
 

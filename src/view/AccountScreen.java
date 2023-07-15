@@ -1,7 +1,6 @@
 package view;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.*;

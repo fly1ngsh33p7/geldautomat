@@ -63,6 +63,19 @@ public class LoginScreen extends JPanel {
     }
 
     public JButton getLoginButton() {
-        return loginButton;
+        return this.loginButton;
     }
+
+	public JPasswordField getPasswordField() {
+		return this.passwordField;
+	}
+
+	public JTextField getInputBlz() {
+		return this.inputBlz;
+	}
+
+	public JTextField getInputAccountNumber() {
+		return this.inputAccountNumber;
+	}
+    
 }

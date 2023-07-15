@@ -10,28 +10,102 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JFileChooser;
+
 import view.ErrorPopup;
+import view.Popup;
 
 /**
  * BankManagementSystem creates all the Bank, Account and Owner objects from the provided databaseFile.
+ * It is a Singleton, so there can be only one BankManagementSystem instance.
+ * 
+ * THis is the Control part of MVC.
  */
 public class BankManagementSystem {
+	private static BankManagementSystem instance;
+	
+	// TODO idk if BMS needs to know these all:
     private Set<Bank> banks;
     private Set<Account> accounts;
     private Set<Owner> owners;
     
-    public BankManagementSystem(File databaseFile) {
+    private BankManagementSystem() {
+    	// FIXME the databaseFile is essentially a list of accounts and those reference banks and owners - do we need those Sets then?
     	this.banks = new HashSet<Bank>();
     	this.accounts = new HashSet<Account>();
     	this.owners = new HashSet<Owner>();
     	
-    	List<List<String>> data = getDataByColumn(databaseFile);
+    	List<List<String>> data = getDataByColumn(readDatabaseFileByUser());
         
     	// create Banks, Owners and Accounts from data
     	extractFromData(data);
     }
     
+    public static BankManagementSystem getInstance() {
+    	if (instance == null) {
+    		instance = new BankManagementSystem();
+    		return instance;
+    	}
+    	return instance;
+    }
     
+    private File readDatabaseFileByUser() {
+    	// Choose your database file to load the data
+		File selectedFile;
+		do {
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.showOpenDialog(null);
+			selectedFile = fileChooser.getSelectedFile();
+
+			if (selectedFile == null) {
+				Popup.display("Info", "Bitte wählen Sie eine Datei aus.", "OK", "Programm beenden", () -> System.exit(0));
+			}
+		} while (selectedFile == null);
+		return selectedFile;
+    }
+    
+    
+    /**
+     * Looks through the accounts-Set and returns the first matching the 
+     * provided bankCode and accountNumber.
+     * @return
+     */
+    public Account getAccountByBankCodeAndAccountNumber(String bankCode, int accountNumber) {
+    	for (Account currentAccount : this.accounts) {
+    		if (currentAccount.getBank().getBankCode().equals(bankCode) && currentAccount.getAccountNumber() == accountNumber) {
+                return currentAccount;
+            }
+    	}
+    	
+    	// Account not found
+    	return null; 
+    }
+    
+    public boolean checkCredentials(String bankCode, String accountNumberString, char[] pinCharArray) {
+    	int pin;
+    	int accountNumber;
+    	// try to interpret the pinString and the accountNumberString, a format error means
+    	// wrong characters and failed authentication
+    	try {
+    		pin = Integer.parseInt(String.valueOf(pinCharArray));
+    		accountNumber = Integer.parseInt(accountNumberString);
+    	} catch (NumberFormatException e) {
+    		return false;
+    	}
+    	
+    	// try to get the account that matches the bankCode and accountNumber
+    	Account account = getAccountByBankCodeAndAccountNumber(bankCode, accountNumber);
+    	
+    	// if the provided bankCode and accountNumber don't match any account, authentication failed
+    	if (account == null) {
+    		return false;
+    	}
+    	
+    	// returns true if the pin matches
+        return account.getPin() == pin;
+    	
+    }
+
     /**
      * The structure of the data should be as described below,
      * otherwise the data cannot be interpreted correctly:
@@ -41,52 +115,18 @@ public class BankManagementSystem {
 	 * 
 	 * <table border="1">
 	 *   <tr>
-	 *     <td>0</td>
-	 *     <td>1</td>
-	 *     <td>2</td>
-	 *     <td>3</td>
-	 *     <td>4</td>
-	 *     <td>5</td>
-	 *     <td>6</td>
-	 *     <td>7</td>
-	 *     <td>8</td>
-	 *     <td>9</td>
-	 *     <td>10</td>
-	 *     <td>11</td>
-	 *     <td>12</td>
-	 *     <td>13</td>
+	 *     <td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td>
+	 *     <td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td>
 	 *   </tr>
      *   <tr>
-	 *     <td>Bank</td>
-	 *     <td>BLZ</td>
-	 *     <td>Kontonummer</td>
-	 *     <td>PIN</td>
-	 *     <td>Kontostand</td>
-	 *     <td>Kontoart</td>
-	 *     <td>Zins %</td>
-	 *     <td>Ueberziehungsbetrag</td>
-	 *     <td>Kundennummer</td>
-	 *     <td>Name</td>
-	 *     <td>Vorname</td>
-	 *     <td>Kunde Straße</td>
-	 *     <td>Kunde PLZ</td>
-	 *     <td>Kunde Ort</td>
+	 *     <td>Bank</td><td>BLZ</td><td>Kontonummer</td><td>PIN</td><td>Kontostand</td>
+	 *     <td>Kontoart</td><td>Zins %</td><td>Ueberziehungsbetrag</td><td>Kundennummer</td>
+	 *     <td>Name</td><td>Vorname</td><td>Kunde Straße</td><td>Kunde PLZ</td><td>Kunde Ort</td>
 	 *   </tr>
 	 *   <tr>
-	 *     <td>Bank</td>
-	 *     <td>Bank Code</td>
-	 *     <td>Account Number</td>
-	 *     <td>PIN</td>
-	 *     <td>Account Balance</td>
-	 *     <td>Account Type</td>
-	 *     <td>Interest Rate (%)</td>
-	 *     <td>Overdraft Amount</td>
-	 *     <td>Customer Number</td>
-	 *     <td>Last Name</td>
-	 *     <td>First Name</td>
-	 *     <td>Customer Street</td>
-	 *     <td>Customer Postal Code</td>
-	 *     <td>Customer City</td>
+	 *     <td>Bank</td><td>Bank Code</td><td>Account Number</td><td>PIN</td><td>Account Balance</td>
+	 *     <td>Account Type</td><td>Interest Rate (%)</td><td>Overdraft Amount</td><td>Customer Number</td>
+	 *     <td>Last Name</td><td>First Name</td><td>Customer Street</td><td>Customer Postal Code</td><td>Customer City</td>
 	 *   </tr>
 	 * </table>
 	 * 
@@ -171,13 +211,13 @@ public class BankManagementSystem {
     
     /**
      * Takes a String input that is to be parsed into a Double and removes everything 
-     * that is different from digits, commas and dots. Then replaces all commas with dots.
+     * that is different from a preceding dash, digits, commas and dots. Then replaces all commas with dots.
      * 
      * @param input
      * @return sanitized double
      */
     public static double sanitizeAndParseDouble(String input) {
-    	// matches everything except dashes, digits, dots and commas
+    	// matches and removes everything except dashes, digits, dots and commas
     	String removedAllExceptDigitsDotsAndCommas = input.replaceAll("[^-0-9.,]", "");
     	
     	// match only the periods that are not the decimal separator, that means it

@@ -11,51 +11,41 @@ public class View {
     private AccountScreen accountScreen;
 
     public View() {
-        frame = new JFrame("GUI Application");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+        this.frame = new JFrame("GUI Application");
+        this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.frame.setResizable(false);
 
         // Create the card layout and panel to hold screens
-        cardLayout = new CardLayout();
-        cardPanel = new JPanel(cardLayout);
+        this.cardLayout = new CardLayout();
+        this.cardPanel = new JPanel(this.cardLayout);
 
         // Create and add screens to the card panel
-        loginScreen = new LoginScreen();
-        accountScreen = new AccountScreen();
-        cardPanel.add(loginScreen, "Login");
-        cardPanel.add(accountScreen, "Account");
+        this.loginScreen = new LoginScreen();
+        this.accountScreen = new AccountScreen();
+        this.cardPanel.add(this.loginScreen, "Login");
+        this.cardPanel.add(this.accountScreen, "Account");
 
         // Add the card panel to the main frame
-        frame.getContentPane().add(cardPanel);
+        this.frame.getContentPane().add(this.cardPanel);
     }
     
-    public void setupGUI() {
-        // Create a button on the login screen to switch to the account screen
-        loginScreen.getLoginButton().addActionListener(e -> cardLayout.show(cardPanel, "Account"));
-
-        // Create a button on the account screen to switch back to the login screen
-        accountScreen.getLogoutButton().addActionListener(e -> cardLayout.show(cardPanel, "Login"));
-
-        accountScreen.getOpenWithdrawWindowButton().addActionListener(e -> {
-            // Open the small window
-            SmallWindow smallWindow = new SmallWindow(frame, "Auszahlen");
-            smallWindow.setVisible(true);
-        });
-
-        accountScreen.getOpenDepositWindowButton().addActionListener(e -> {
-            // Open the small window
-            SmallWindow smallWindow = new SmallWindow(frame, "Einzahlen");
-            smallWindow.setVisible(true);
-        });
-        
-        
-        // Display the login screen initially
-        cardLayout.show(cardPanel, "Login");
-
-        // Set the frame size, pack, and make it visible
-        frame.setPreferredSize(new Dimension(390, 210));
-        frame.pack();
-        frame.setVisible(true);
+    public LoginScreen getLoginScreen() {
+    	return this.loginScreen;
     }
 
+	public JFrame getFrame() {
+		return this.frame;
+	}
+
+	public CardLayout getCardLayout() {
+		return this.cardLayout;
+	}
+
+	public JPanel getCardPanel() {
+		return this.cardPanel;
+	}
+
+	public AccountScreen getAccountScreen() {
+		return this.accountScreen;
+	}
 }

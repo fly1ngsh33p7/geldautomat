@@ -1,11 +1,12 @@
 package control;
 
 import java.awt.Dimension;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.CardLayout;
-
 import model.BankManagementSystem;
 import view.AccountScreen;
 import view.LoginScreen;
@@ -16,10 +17,14 @@ import view.View;
 public class Control {
     private BankManagementSystem bms;
     private View view;
+    
+    private boolean isWithdrawOrDepositWindowOpen;
 
     public Control(BankManagementSystem bms, View view) {
         this.bms = bms;
         this.view = view;
+        
+        this.isWithdrawOrDepositWindowOpen = false;
         
         
         // Add an ActionListener to the LoginButton
@@ -37,35 +42,47 @@ public class Control {
         JPanel cardPanel = this.view.getCardPanel();
         JFrame frame = this.view.getFrame();
     	
-        // Create a button on the login screen to switch to the account screen after checking the credentials.
         
-        // TODO same on Enter?
+        //---Login---------------------------
         loginButton.addActionListener(e -> {
-        	String bankCode = loginScreen.getInputBlz().getText();
-        	char[] pinCharArray = loginScreen.getPasswordField().getPassword(); // TODO String? Can I force only ints? 
-        	String accountNumberString = loginScreen.getInputAccountNumber().getText(); // TODO String? Can I force only ints?
-        	
-        	if (bms.checkCredentials(bankCode, accountNumberString, pinCharArray)) {
-        		cardLayout.show(cardPanel, "Account");
-        	} else {
-        		Popup.display("Info", "PIN inkorrekt", "OK", "Programm beenden", () -> System.exit(0));
-        		// TODO clear PIN Textfield - or do I want that?
-        	}
+        	performLogin(loginScreen, cardLayout, cardPanel);
         });
+        
+        KeyAdapter performLoginOnEnter = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+	        		performLogin(loginScreen, cardLayout, cardPanel);
+	            }
+			}
+		};
+        
+        loginScreen.getInputBlz().addKeyListener(performLoginOnEnter);
+        loginScreen.getPasswordField().addKeyListener(performLoginOnEnter);
+        loginScreen.getInputAccountNumber().addKeyListener(performLoginOnEnter);
+        //-----------------------------------
+        
+        
 
-        // Create a button on the account screen to switch back to the login screen
+        // Create a button on the account screen to switch back to the login screen // TODO cleanup AccountScreen?
         accountScreen.getLogoutButton().addActionListener(e -> cardLayout.show(cardPanel, "Login"));
 
         accountScreen.getOpenWithdrawWindowButton().addActionListener(e -> {
-            // Open the small window
-            SmallWindow smallWindow = new SmallWindow(frame, "Auszahlen");
-            smallWindow.setVisible(true);
+        	if (!isWithdrawOrDepositWindowOpen) {
+		    	// TODO reset Variable on close -> runnable that does that? -> constructor of SmallWindow
+		        // Open the small window
+		        SmallWindow smallWindow = new SmallWindow(frame, "Auszahlen");
+		        smallWindow.setVisible(true);
+        	}
         });
 
         accountScreen.getOpenDepositWindowButton().addActionListener(e -> {
-            // Open the small window
-            SmallWindow smallWindow = new SmallWindow(frame, "Einzahlen");
-            smallWindow.setVisible(true);
+        	if (!isWithdrawOrDepositWindowOpen) {
+		    	// TODO reset Variable on close -> runnable that does that? -> constructor of SmallWindow
+		        // Open the small window
+		        SmallWindow smallWindow = new SmallWindow(frame, "Einzahlen");
+		        smallWindow.setVisible(true);
+        	}
         });
         
         
@@ -77,6 +94,25 @@ public class Control {
         frame.pack();
         frame.setVisible(true);
     }
+    
+    private void performLogin(LoginScreen loginScreen, CardLayout cardLayout, JPanel cardPanel) {
+    	String bankCode = loginScreen.getInputBlz().getText();
+    	char[] pinCharArray = loginScreen.getPasswordField().getPassword(); // TODO String? Can I force only ints? 
+    	String accountNumberString = loginScreen.getInputAccountNumber().getText(); // TODO String? Can I force only ints?
+    	
+    	// if correct credentials are provided, show the account screen
+    	if (bms.checkCredentials(bankCode, accountNumberString, pinCharArray)) {
+    		cardLayout.show(cardPanel, "Account");
+
+    		// clear TextFields
+    		loginScreen.getInputAccountNumber().setText("");
+    		loginScreen.getPasswordField().setText("");
+    		loginScreen.getInputBlz().setText("");
+    	} else {
+    		Popup.display("Info", "PIN inkorrekt", "OK", "Programm beenden", () -> System.exit(0));
+    	}
+    }
+    
 
     /*
     public static void processUserInput(String input) {

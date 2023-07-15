@@ -82,7 +82,7 @@ public class AccountScreen extends JPanel {
 
 	private void initAccountsAtThisBankComboBox() {
 		this.accountList = Arrays.asList("8008135 (Girokonto)", "weiter", "Konten");
-		// TODO
+		// TODO this needs data from outside
 		this.accountsAtThisBankComboBox = new JComboBox<>(new DefaultComboBoxModel<>(this.accountList.toArray()));
 		this.accountsAtThisBankComboBox.setSelectedIndex(1);
 		this.accountsAtThisBankComboBox.setToolTipText("Hier finden Sie Ihre andere Konten bei dieser Bank");

@@ -24,7 +24,7 @@ import view.Popup;
 public class BankManagementSystem {
 	private static BankManagementSystem instance;
 	
-	// TODO idk if BMS needs to know these all:
+	// TODO idk if BMS needs to know these all: (Login uses just accounts)
     private Set<Bank> banks;
     private Set<Account> accounts;
     private Set<Owner> owners;
@@ -164,13 +164,13 @@ public class BankManagementSystem {
     }
     
     private void extractFromData(List<List<String>> data) {
+    	//TODO do I need to sanitize all inputs? (yes: do it where data is created) (because of "'08123" in postalCode and such
     	for (int currentAccountIndex = 0; currentAccountIndex < data.get(0).size(); currentAccountIndex++) {
     		//---extract-the-current-Bank---
 			String bankName = data.get(0).get(currentAccountIndex);
 			String bankCode = data.get(1).get(currentAccountIndex);
 		
 			Bank currentBank = new Bank(bankCode, bankName, this);
-			boolean insertedNewBank = this.banks.add(currentBank);
 			//------------------------------
     		
     		//---extract-the-current-Owner---
@@ -182,7 +182,6 @@ public class BankManagementSystem {
     		String location = data.get(13).get(currentAccountIndex);
     		
     		Owner currentOwner = new Owner(customerNumber, lastName, firstName, postalCode, location, street);
-    		boolean insertedNewOwner = this.owners.add(currentOwner);
     		//------------------------------
     		
     		//---extract-the-current-account---
@@ -195,12 +194,12 @@ public class BankManagementSystem {
     		
     		switch (accountType) {
     			case "Sparkonto":
-    				// FIXME: this adds not *the original* Bank if insertedNewBank is false, but one that's equal to it. This shouldn't cause problems but is not perfect.
-    				this.accounts.add(new SavingAccount(accountNumber, pin, balance, currentBank, currentOwner, sanitizeAndParseDouble(rawInterestString))); //TODO sanitize necessary or suitable?
+    				// this adds not *the original* Bank/Owner, but one that's equal to it. This shouldn't cause problems but is not perfect.
+    				this.accounts.add(new SavingAccount(accountNumber, pin, balance, currentBank, currentOwner, sanitizeAndParseDouble(rawInterestString)));
     				break;
     			case "Girokonto":
-    				// FIXME: this adds not *the original* Bank/Owner if insertedNewBank/insertedNewOwner is false, but one that's equal to it. This shouldn't cause problems but is not perfect.
-    				this.accounts.add(new CheckingAccount(accountNumber, pin, balance, currentBank, currentOwner, sanitizeAndParseDouble(rawOverdraftAmountString))); //TODO sanitize necessary or suitable?
+    				// this adds not *the original* Bank/Owner, but one that's equal to it. This shouldn't cause problems but is not perfect.
+    				this.accounts.add(new CheckingAccount(accountNumber, pin, balance, currentBank, currentOwner, sanitizeAndParseDouble(rawOverdraftAmountString)));
     				break;
 				default:
 					// if the extracted accountType is not in this switch-case, something went wrong

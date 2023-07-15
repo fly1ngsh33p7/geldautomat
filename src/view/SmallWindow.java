@@ -38,25 +38,19 @@ public class SmallWindow extends JFrame {
 		cancelButton = new JButton("Abbrechen");
 
 		// Add action listeners to the buttons
-		submitButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Process the submitted value
-				String value = inputField.getText();
-				// Perform any necessary actions with the submitted value
-				// ...
+		submitButton.addActionListener(e -> {
+			// Process the submitted value
+			String value = inputField.getText();
+			// Perform any necessary actions with the submitted value
+			// ...
 
-				// Close the small window
-				dispose();
-			}
+			// Close the small window
+			dispose();
 		});
 
-		cancelButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Close the small window
-				dispose();
-			}
+		cancelButton.addActionListener(e -> {
+			// Close the small window
+			dispose();
 		});
 
 		// Create a panel to hold the components

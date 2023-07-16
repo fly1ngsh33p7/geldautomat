@@ -26,9 +26,9 @@ public class SmallWindow extends JFrame {
 	}
 
 	private void initSmallWindow(JFrame parentFrame) {
-
 		setTitle("Small Window");
 		setPreferredSize(new Dimension(300, 150));
+		setResizable(false);
 
 		// Create the input field for values in euros and cents
 		inputField = new JTextField(10);

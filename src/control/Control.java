@@ -45,7 +45,13 @@ public class Control {
         
         //---Login---------------------------
         loginButton.addActionListener(e -> {
-        	performLogin(loginScreen, cardLayout, cardPanel);
+        	// check if all fields are filled
+        	if (!loginScreen.areFieldsFilledAndShowHints()) {
+        		// TODO show which fields are missing by highlighting them
+        	} else {
+        		// all fields are filled, try authentication:
+        		performLogin(loginScreen, cardLayout, cardPanel);
+        	}
         });
         
         KeyAdapter performLoginOnEnter = new KeyAdapter() {
@@ -103,7 +109,8 @@ public class Control {
     	// if correct credentials are provided, show the account screen
     	if (bms.checkCredentials(bankCode, accountNumberString, pinCharArray)) {
     		cardLayout.show(cardPanel, "Account");
-
+    		this.view.getFrame().revalidate();
+    		
     		// clear TextFields
     		loginScreen.getInputAccountNumber().setText("");
     		loginScreen.getPasswordField().setText("");

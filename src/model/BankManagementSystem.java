@@ -54,16 +54,21 @@ public class BankManagementSystem {
 		File selectedFile;
 		do {
 			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.showOpenDialog(null);
+			int resultStatus = fileChooser.showOpenDialog(null);
 			selectedFile = fileChooser.getSelectedFile();
 
+			if (resultStatus == JFileChooser.CANCEL_OPTION) {
+				// a file is still considered selected when it is highlighted (after clicking it) and then closing the JFileChooser using "Cancel"
+				// Therefore we reset selectedFile to null
+				selectedFile = null;
+			}
+			
 			if (selectedFile == null) {
 				Popup.display("Info", "Bitte wählen Sie eine Datei aus.", "OK", "Programm beenden", () -> System.exit(0));
 			}
 		} while (selectedFile == null);
 		return selectedFile;
     }
-    
     
     /**
      * Looks through the accounts-Set and returns the first matching the 

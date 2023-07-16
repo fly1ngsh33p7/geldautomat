@@ -1,5 +1,6 @@
 package view;
 
+import java.awt.Dimension; //TODO darf ich awt Dimension verwenden?
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,8 +21,12 @@ public class AccountScreen extends JPanel {
 	private JLabel balanceLabel;
 	private JComboBox accountsAtThisBankComboBox;
 	private List<String> accountList;
+	private JButton btnLogout;
 
 	public AccountScreen() {
+		super.setSize(new Dimension(670, 280));
+		this.setLayout(null);
+
 		initLogoutButton();
 		initDepositWindowButton();
 		initWithdrawWindowButton();
@@ -51,8 +56,8 @@ public class AccountScreen extends JPanel {
 
 	private void initAccountType() {
 		this.accountTypeLabel = new JLabel("Konto:");
-		this.accountTypeLabel.setToolTipText("Zeigt, welcher Kontotyp vorliegt.");
 		this.accountTypeLabel.setBounds(12, 120, 152, 15);
+		this.accountTypeLabel.setToolTipText("Zeigt, welcher Kontotyp vorliegt.");
 		add(this.accountTypeLabel);
 	}
 
@@ -84,9 +89,9 @@ public class AccountScreen extends JPanel {
 		this.accountList = Arrays.asList("8008135 (Girokonto)", "weiter", "Konten");
 		// TODO this needs data from outside
 		this.accountsAtThisBankComboBox = new JComboBox<>(new DefaultComboBoxModel<>(this.accountList.toArray()));
+		this.accountsAtThisBankComboBox.setBounds(458, 12, 198, 30);
 		this.accountsAtThisBankComboBox.setSelectedIndex(1);
 		this.accountsAtThisBankComboBox.setToolTipText("Hier finden Sie Ihre andere Konten bei dieser Bank");
-		this.accountsAtThisBankComboBox.setBounds(458, 12, 198, 30);
 		add(this.accountsAtThisBankComboBox);
 	}
 
@@ -105,7 +110,7 @@ public class AccountScreen extends JPanel {
 	private void initLogoutButton() {
 		this.logoutButton = new JButton("Logout");
 		this.logoutButton.setBounds(12, 249, 84, 25);
-		setLayout(null);
+		add(this.logoutButton);
 	}
 
 	private void initDepositWindowButton() {

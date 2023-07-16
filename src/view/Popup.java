@@ -9,6 +9,7 @@ public class Popup {
         dialog.setTitle(title);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setSize(300, 150);
+        dialog.setResizable(false);
         dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setLocationRelativeTo(null);
 

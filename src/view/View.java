@@ -8,12 +8,9 @@ public class View {
 	public static final String ACCOUNT_SCREEN_KEY = "account";
 	
     private JFrame frame;
-    //private CardLayout cardLayout; FIXME
     private JPanel panelAroundCardContainer;
     private LoginScreen loginScreen;
     private AccountScreen accountScreen;
-    
-    //ChatGPT suggestion
     private JPanel cardContainer;
 
     public View() {
@@ -25,25 +22,6 @@ public class View {
     }
     
     private void setupCardPanel() {
-    	// Create the card layout and panel to hold screens
-        //this.cardPanel = new JPanel(new CardLayout()); //FIXME nochmal überlegen, ob man hier noch ein extra JPanel macht, statt direkt die Screens zur contentPane zu adden 
-    	/*this.cardPanel = new JPanel(new BorderLayout());
-    	
-    	
-    	// Create and add screens to the card panel
-        this.loginScreen = new LoginScreen();
-        this.accountScreen = new AccountScreen();
-        
-        this.loginScreen.setPreferredSize(new Dimension(300, 200));
-        this.accountScreen.setPreferredSize(new Dimension(670, 280));
-        
-        //this.cardPanel.add(this.loginScreen, LOGIN_SCREEN_KEY); // cardLayout
-        //this.cardPanel.add(this.accountScreen, ACCOUNT_SCREEN_KEY); //cardlayout
-        this.cardPanel.add(this.loginScreen, BorderLayout.CENTER);
-        this.cardPanel.add(this.accountScreen, BorderLayout.CENTER);*/
-        
-        
-        // CHAT GPT suggestion===============================================
         this.panelAroundCardContainer = new JPanel(new BorderLayout());
 
         // Create screens
@@ -87,7 +65,6 @@ public class View {
 	}
 
 	public JPanel getCardPanel() {
-		//return this.cardPanel;
 		return this.cardContainer;
 	}
 

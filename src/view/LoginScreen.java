@@ -32,15 +32,16 @@ public class LoginScreen extends JPanel {
 
 	public void initFields() {
 		passwordField = new JPasswordField();
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.passwordLabel, 2, SpringLayout.NORTH, this.passwordField);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.passwordLabel, -6, SpringLayout.WEST, this.passwordField);
+		this.layout_1.putConstraint(SpringLayout.WEST, this.passwordField, 129, SpringLayout.WEST, this);
 		this.layout_1.putConstraint(SpringLayout.NORTH, this.loginButton, 12, SpringLayout.SOUTH, this.passwordField);
 		this.layout_1.putConstraint(SpringLayout.SOUTH, this.passwordField, -57, SpringLayout.SOUTH, this);
 		this.layout_1.putConstraint(SpringLayout.EAST, this.passwordField, -6, SpringLayout.WEST,
 				this.passwordRequiredLabel);
-		this.layout_1.putConstraint(SpringLayout.WEST, this.passwordField, 6, SpringLayout.EAST, this.passwordLabel);
 		add(passwordField);
 
 		inputBlz = new JTextField();
-		this.layout_1.putConstraint(SpringLayout.EAST, this.accountNumberLabel, -6, SpringLayout.WEST, this.inputBlz);
 		this.layout_1.putConstraint(SpringLayout.EAST, this.inputBlz, -6, SpringLayout.WEST,
 				this.accountNumberRequiredLabel);
 		this.layout_1.putConstraint(SpringLayout.NORTH, this.inputBlz, -140, SpringLayout.SOUTH, this);
@@ -61,10 +62,11 @@ public class LoginScreen extends JPanel {
 		add(inputBlz);
 
 		inputAccountNumber = new JTextField();
-		this.layout_1.putConstraint(SpringLayout.EAST, this.inputAccountNumber, -6, SpringLayout.WEST,
-				this.bankCodeRequiredLabel);
+		this.layout_1.putConstraint(SpringLayout.WEST, this.inputAccountNumber, 6, SpringLayout.EAST,
+				this.accountNumberLabel);
 		this.layout_1.putConstraint(SpringLayout.SOUTH, this.inputAccountNumber, -90, SpringLayout.SOUTH, this);
-		this.layout_1.putConstraint(SpringLayout.WEST, this.inputAccountNumber, 129, SpringLayout.WEST, this);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.inputAccountNumber, -6, SpringLayout.WEST,
+				this.passwordRequiredLabel);
 		add(inputAccountNumber);
 	}
 
@@ -80,30 +82,25 @@ public class LoginScreen extends JPanel {
 
 		// JTextField labels
 		passwordLabel = new JLabel("Passwort");
+		this.layout_1.putConstraint(SpringLayout.WEST, this.passwordLabel, 56, SpringLayout.WEST, this);
 		add(passwordLabel);
 
 		accountNumberLabel = new JLabel("Kontonummer");
-		this.layout_1.putConstraint(SpringLayout.NORTH, this.accountNumberLabel, 23, SpringLayout.SOUTH,
-				this.pageLabel);
-		this.layout_1.putConstraint(SpringLayout.WEST, this.passwordLabel, 32, SpringLayout.WEST,
-				this.accountNumberLabel);
-		this.layout_1.putConstraint(SpringLayout.EAST, this.passwordLabel, 0, SpringLayout.EAST,
-				this.accountNumberLabel);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.accountNumberLabel, 0, SpringLayout.EAST,
+				this.passwordLabel);
 		add(accountNumberLabel);
 
 		bankCodeLabel = new JLabel("BLZ");
-		this.layout_1.putConstraint(SpringLayout.NORTH, this.passwordLabel, 18, SpringLayout.SOUTH, this.bankCodeLabel);
-		this.layout_1.putConstraint(SpringLayout.NORTH, this.bankCodeLabel, 16, SpringLayout.SOUTH,
-				this.accountNumberLabel);
-		this.layout_1.putConstraint(SpringLayout.EAST, this.bankCodeLabel, 0, SpringLayout.EAST,
-				this.accountNumberLabel);
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.accountNumberLabel, 16, SpringLayout.SOUTH,
+				this.bankCodeLabel);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.bankCodeLabel, 0, SpringLayout.EAST, this.passwordLabel);
 		add(bankCodeLabel);
 	}
 
 	public void initInputRequiredLabels() {
 		bankCodeRequiredLabel = new JLabel("* bitte ausfüllen");
 		this.layout_1.putConstraint(SpringLayout.NORTH, this.bankCodeRequiredLabel, 0, SpringLayout.NORTH,
-				this.bankCodeLabel);
+				this.passwordLabel);
 		bankCodeRequiredLabel.setVisible(false);
 		bankCodeRequiredLabel.setForeground(Color.RED);
 		add(bankCodeRequiredLabel);
@@ -111,18 +108,18 @@ public class LoginScreen extends JPanel {
 		accountNumberRequiredLabel = new JLabel("* bitte ausfüllen");
 		this.layout_1.putConstraint(SpringLayout.EAST, this.bankCodeRequiredLabel, 0, SpringLayout.EAST,
 				this.accountNumberRequiredLabel);
-		this.layout_1.putConstraint(SpringLayout.NORTH, this.accountNumberRequiredLabel, 0, SpringLayout.NORTH,
-				this.accountNumberLabel);
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.bankCodeLabel, 0, SpringLayout.NORTH,
+				this.accountNumberRequiredLabel);
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.accountNumberRequiredLabel, 42, SpringLayout.NORTH, this);
 		this.layout_1.putConstraint(SpringLayout.EAST, this.accountNumberRequiredLabel, -10, SpringLayout.EAST, this);
 		accountNumberRequiredLabel.setVisible(false);
 		accountNumberRequiredLabel.setForeground(Color.RED);
 		add(accountNumberRequiredLabel);
 
 		passwordRequiredLabel = new JLabel("* bitte ausfüllen");
-		this.layout_1.putConstraint(SpringLayout.NORTH, this.passwordRequiredLabel, 0, SpringLayout.NORTH,
-				this.passwordLabel);
-		this.layout_1.putConstraint(SpringLayout.EAST, this.passwordRequiredLabel, 0, SpringLayout.EAST,
-				this.bankCodeRequiredLabel);
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.passwordRequiredLabel, 18, SpringLayout.SOUTH,
+				this.accountNumberRequiredLabel);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.passwordRequiredLabel, -10, SpringLayout.EAST, this);
 		passwordRequiredLabel.setVisible(false);
 		passwordRequiredLabel.setForeground(Color.RED);
 		add(passwordRequiredLabel);

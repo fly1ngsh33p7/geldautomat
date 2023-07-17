@@ -103,8 +103,8 @@ public class Control {
     
     private void performLogin(LoginScreen loginScreen, CardLayout cardLayout, JPanel cardPanel) {
     	String bankCode = loginScreen.getInputBlz().getText();
-    	char[] pinCharArray = loginScreen.getPasswordField().getPassword(); // TODO String? Can I force only ints? 
-    	String accountNumberString = loginScreen.getInputAccountNumber().getText(); // TODO String? Can I force only ints?
+    	char[] pinCharArray = loginScreen.getPasswordField().getPassword();
+    	String accountNumberString = loginScreen.getInputAccountNumber().getText();
     	
     	// if correct credentials are provided, show the account screen
     	if (bms.checkCredentials(bankCode, accountNumberString, pinCharArray)) {

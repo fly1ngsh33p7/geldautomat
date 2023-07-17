@@ -9,7 +9,7 @@ public class View {
 	
     private JFrame frame;
     //private CardLayout cardLayout; FIXME
-    private JPanel cardPanel;
+    private JPanel panelAroundCardContainer;
     private LoginScreen loginScreen;
     private AccountScreen accountScreen;
     
@@ -44,7 +44,7 @@ public class View {
         
         
         // CHAT GPT suggestion===============================================
-        this.cardPanel = new JPanel(new BorderLayout());
+        this.panelAroundCardContainer = new JPanel(new BorderLayout());
 
         // Create screens
         this.loginScreen = new LoginScreen();
@@ -55,14 +55,11 @@ public class View {
         this.cardContainer.add(this.loginScreen, LOGIN_SCREEN_KEY);
         this.cardContainer.add(this.accountScreen, ACCOUNT_SCREEN_KEY);
         
-        //this.loginScreen.setPreferredSize(new Dimension(300, 200));
-        this.accountScreen.setPreferredSize(new Dimension(670, 280));
-
         // Add the card container to the center region of the cardPanel
-        this.cardPanel.add(this.cardContainer, BorderLayout.CENTER);
+        this.panelAroundCardContainer.add(this.cardContainer, BorderLayout.CENTER);
         
         // Add the card panel to the main frame
-        this.frame.getContentPane().add(this.cardPanel);
+        this.frame.getContentPane().add(this.panelAroundCardContainer);
         
         // Pack the frame to adjust its size based on the preferred sizes of the screens
         this.frame.pack();
@@ -70,8 +67,11 @@ public class View {
     }
     
     public void changeScreen(String screenKey) {
-    	//this.getCardLayout().show(cardPanel, screenKey);
     	this.getCardLayout().show(cardContainer, screenKey);
+    	
+    	// Adjust the size of the frame to fit the preferred size of the active screen;
+    	Dimension newDim = this.getCardLayout().preferredLayoutSize(panelAroundCardContainer);
+        this.frame.setSize(newDim);
     }
     
     public LoginScreen getLoginScreen() {

@@ -48,8 +48,14 @@ public class View {
     	this.getCardLayout().show(cardContainer, screenKey);
     	
     	// Adjust the size of the frame to fit the preferred size of the active screen;
-    	Dimension newDim = this.getCardLayout().preferredLayoutSize(panelAroundCardContainer);
+    	Dimension newDim;
+    	if (screenKey.equals(ACCOUNT_SCREEN_KEY)) {
+    		newDim = this.accountScreen.getPreferredSize();
+    	} else { //if (screenKey.equals(LOGIN_SCREEN_KEY)) {
+    		newDim = this.loginScreen.getPreferredSize();
+    	}
         this.frame.setSize(newDim);
+        
     }
     
     public LoginScreen getLoginScreen() {

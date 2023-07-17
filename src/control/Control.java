@@ -26,7 +26,6 @@ public class Control {
         
         this.isWithdrawOrDepositWindowOpen = false;
         
-        
         // Add an ActionListener to the LoginButton
         setupGUI();
     }
@@ -70,8 +69,8 @@ public class Control {
         
         
 
-        // Create a button on the account screen to switch back to the login screen // TODO cleanup AccountScreen?
-        accountScreen.getLogoutButton().addActionListener(e -> cardLayout.show(cardPanel, "Login"));
+        // Create a button on the account screen to switch back to the login screen 
+        accountScreen.getLogoutButton().addActionListener(e -> this.view.changeScreen(View.LOGIN_SCREEN_KEY)); //TODO cleanup fields in AccountScreen??
 
         accountScreen.getOpenWithdrawWindowButton().addActionListener(e -> {
         	if (!isWithdrawOrDepositWindowOpen) {

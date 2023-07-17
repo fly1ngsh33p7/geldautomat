@@ -13,10 +13,16 @@ public class LoginScreen extends JPanel {
 	private JLabel bankCodeRequiredLabel;
 	private JLabel accountNumberRequiredLabel;
 	private JLabel passwordRequiredLabel;
+	private SpringLayout layout_1;
+	private JLabel pageLabel;
+	private JLabel bankCodeLabel;
+	private JLabel accountNumberLabel;
+	private JLabel passwordLabel;
 
 	public LoginScreen() {
-		super.setSize(new Dimension(300, 180));
-		this.setLayout(null);
+		setPreferredSize(new Dimension(367, 180));
+		layout_1 = new SpringLayout();
+		setLayout(layout_1);
 
 		initLoginButton();
 		initLabels();
@@ -25,13 +31,22 @@ public class LoginScreen extends JPanel {
 	}
 
 	public void initFields() {
-		this.passwordField = new JPasswordField();
-		this.passwordField.setBounds(150, 120, 114, 19);
-		add(this.passwordField);
+		passwordField = new JPasswordField();
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.loginButton, 12, SpringLayout.SOUTH, this.passwordField);
+		this.layout_1.putConstraint(SpringLayout.SOUTH, this.passwordField, -57, SpringLayout.SOUTH, this);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.passwordField, -6, SpringLayout.WEST,
+				this.passwordRequiredLabel);
+		this.layout_1.putConstraint(SpringLayout.WEST, this.passwordField, 6, SpringLayout.EAST, this.passwordLabel);
+		add(passwordField);
 
-		this.inputBlz = new JTextField();
-		this.inputBlz.setForeground(new Color(51, 51, 51));
-		this.inputBlz.addKeyListener(new KeyAdapter() {
+		inputBlz = new JTextField();
+		this.layout_1.putConstraint(SpringLayout.EAST, this.accountNumberLabel, -6, SpringLayout.WEST, this.inputBlz);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.inputBlz, -6, SpringLayout.WEST,
+				this.accountNumberRequiredLabel);
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.inputBlz, -140, SpringLayout.SOUTH, this);
+		this.layout_1.putConstraint(SpringLayout.WEST, this.inputBlz, 129, SpringLayout.WEST, this);
+		inputBlz.setForeground(new Color(51, 51, 51));
+		inputBlz.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				// Check if pressed key is alphanumeric
@@ -43,122 +58,124 @@ public class LoginScreen extends JPanel {
 				}
 			}
 		});
-		this.inputBlz.setBounds(150, 57, 114, 19);
-		add(this.inputBlz);
-		this.inputBlz.setColumns(10);
+		add(inputBlz);
 
-		this.inputAccountNumber = new JTextField();
-		this.inputAccountNumber.setColumns(10);
-		this.inputAccountNumber.setBounds(150, 89, 114, 19);
-		add(this.inputAccountNumber);
+		inputAccountNumber = new JTextField();
+		this.layout_1.putConstraint(SpringLayout.EAST, this.inputAccountNumber, -6, SpringLayout.WEST,
+				this.bankCodeRequiredLabel);
+		this.layout_1.putConstraint(SpringLayout.SOUTH, this.inputAccountNumber, -90, SpringLayout.SOUTH, this);
+		this.layout_1.putConstraint(SpringLayout.WEST, this.inputAccountNumber, 129, SpringLayout.WEST, this);
+		add(inputAccountNumber);
 	}
 
 	/**
-	 * initializes the labels that need no interaction, therefore local variables
+	 * Initializes the labels that need no interaction, therefore local variables
 	 * are enough.
 	 */
 	public void initLabels() {
-		JLabel pageLabel = new JLabel("Bankautomat");
-		pageLabel.setBounds(12, 12, 95, 15);
+		pageLabel = new JLabel("Bankautomat");
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.pageLabel, 4, SpringLayout.NORTH, this);
+		this.layout_1.putConstraint(SpringLayout.WEST, this.pageLabel, 11, SpringLayout.WEST, this);
 		add(pageLabel);
 
 		// JTextField labels
-		JLabel bankCodeLabel = new JLabel("BLZ");
-		bankCodeLabel.setBounds(105, 59, 27, 15);
-		add(bankCodeLabel);
+		passwordLabel = new JLabel("Passwort");
+		add(passwordLabel);
 
-		JLabel accountNumberLabel = new JLabel("Kontonummer");
-		accountNumberLabel.setBounds(33, 91, 99, 15);
+		accountNumberLabel = new JLabel("Kontonummer");
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.accountNumberLabel, 23, SpringLayout.SOUTH,
+				this.pageLabel);
+		this.layout_1.putConstraint(SpringLayout.WEST, this.passwordLabel, 32, SpringLayout.WEST,
+				this.accountNumberLabel);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.passwordLabel, 0, SpringLayout.EAST,
+				this.accountNumberLabel);
 		add(accountNumberLabel);
 
-		JLabel passwordLabel = new JLabel("Passwort");
-		passwordLabel.setBounds(65, 122, 67, 15);
-		add(passwordLabel);
+		bankCodeLabel = new JLabel("BLZ");
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.passwordLabel, 18, SpringLayout.SOUTH, this.bankCodeLabel);
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.bankCodeLabel, 16, SpringLayout.SOUTH,
+				this.accountNumberLabel);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.bankCodeLabel, 0, SpringLayout.EAST,
+				this.accountNumberLabel);
+		add(bankCodeLabel);
 	}
 
 	public void initInputRequiredLabels() {
-		this.bankCodeRequiredLabel = new JLabel("* bitte ausfüllen");
-		this.bankCodeRequiredLabel.setVisible(false);
-		this.bankCodeRequiredLabel.setForeground(Color.RED);
-		this.bankCodeRequiredLabel.setBounds(270, 59, 114, 15);
-		add(this.bankCodeRequiredLabel);
+		bankCodeRequiredLabel = new JLabel("* bitte ausfüllen");
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.bankCodeRequiredLabel, 0, SpringLayout.NORTH,
+				this.bankCodeLabel);
+		bankCodeRequiredLabel.setVisible(false);
+		bankCodeRequiredLabel.setForeground(Color.RED);
+		add(bankCodeRequiredLabel);
 
-		this.accountNumberRequiredLabel = new JLabel("* bitte ausfüllen");
-		this.accountNumberRequiredLabel.setVisible(false);
-		this.accountNumberRequiredLabel.setForeground(Color.RED);
-		this.accountNumberRequiredLabel.setBounds(270, 91, 114, 15);
-		add(this.accountNumberRequiredLabel);
+		accountNumberRequiredLabel = new JLabel("* bitte ausfüllen");
+		this.layout_1.putConstraint(SpringLayout.EAST, this.bankCodeRequiredLabel, 0, SpringLayout.EAST,
+				this.accountNumberRequiredLabel);
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.accountNumberRequiredLabel, 0, SpringLayout.NORTH,
+				this.accountNumberLabel);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.accountNumberRequiredLabel, -10, SpringLayout.EAST, this);
+		accountNumberRequiredLabel.setVisible(false);
+		accountNumberRequiredLabel.setForeground(Color.RED);
+		add(accountNumberRequiredLabel);
 
-		this.passwordRequiredLabel = new JLabel("* bitte ausfüllen");
-		this.passwordRequiredLabel.setVisible(false);
-		this.passwordRequiredLabel.setForeground(Color.RED);
-		this.passwordRequiredLabel.setBounds(270, 122, 114, 15);
-		add(this.passwordRequiredLabel);
+		passwordRequiredLabel = new JLabel("* bitte ausfüllen");
+		this.layout_1.putConstraint(SpringLayout.NORTH, this.passwordRequiredLabel, 0, SpringLayout.NORTH,
+				this.passwordLabel);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.passwordRequiredLabel, 0, SpringLayout.EAST,
+				this.bankCodeRequiredLabel);
+		passwordRequiredLabel.setVisible(false);
+		passwordRequiredLabel.setForeground(Color.RED);
+		add(passwordRequiredLabel);
 	}
 
 	public void initLoginButton() {
-		this.loginButton = new JButton("Login");
-		this.loginButton.setFont(new Font("DejaVu Sans", Font.BOLD, 11));
-		this.loginButton.setBackground(new Color(192, 192, 192));
-		this.loginButton.setBounds(164, 156, 73, 25);
+		loginButton = new JButton("Login");
+		this.layout_1.putConstraint(SpringLayout.WEST, this.loginButton, 139, SpringLayout.WEST, this);
+		this.layout_1.putConstraint(SpringLayout.EAST, this.loginButton, -140, SpringLayout.EAST, this);
+		loginButton.setFont(new Font("DejaVu Sans", Font.BOLD, 11));
+		loginButton.setBackground(new Color(192, 192, 192));
 		add(loginButton);
 	}
 
-	public JButton getLoginButton() {
-		return this.loginButton;
-	}
-
-	public JPasswordField getPasswordField() {
-		return this.passwordField;
-	}
-
-	public JTextField getInputBlz() {
-		return this.inputBlz;
-	}
-
-	public JTextField getInputAccountNumber() {
-		return this.inputAccountNumber;
-	}
-
 	public boolean areFieldsFilledAndShowHints() {
-		// TODO change names if "inputBlz" and "inputAccountNumber" and "passwortField"
-		// are changing Names
-		boolean inputBlzFilled = !this.inputBlz.getText().isEmpty();
-		boolean inputAccountNumberFilled = !this.inputAccountNumber.getText().isEmpty();
-		boolean passwordFieldFilled = !(this.passwordField.getPassword().length == 0);
+		boolean inputBlzFilled = !inputBlz.getText().isEmpty();
+		boolean inputAccountNumberFilled = !inputAccountNumber.getText().isEmpty();
+		boolean passwordFieldFilled = !(passwordField.getPassword().length == 0);
 
-		// if an input field is empty, set a red border, make the text of the JTextField
-		// red
-		// and show the corresponding requiredLabel
-		// reset if not empty
 		if (!inputBlzFilled) {
-			this.inputBlz.setBorder(BorderFactory.createLineBorder(Color.RED));
-			this.bankCodeRequiredLabel.setVisible(true);
+			bankCodeRequiredLabel.setVisible(true);
 		} else {
-			this.inputBlz.setBorder(null);
-			this.bankCodeRequiredLabel.setVisible(false);
-			this.inputBlz.setForeground(new Color(51, 51, 51));
+			bankCodeRequiredLabel.setVisible(false);
 		}
 
 		if (!inputAccountNumberFilled) {
-			this.inputAccountNumber.setBorder(BorderFactory.createLineBorder(Color.RED));
-			this.accountNumberRequiredLabel.setVisible(true);
+			accountNumberRequiredLabel.setVisible(true);
 		} else {
-			this.inputAccountNumber.setBorder(null);
-			this.accountNumberRequiredLabel.setVisible(false);
-			this.inputAccountNumber.setForeground(new Color(51, 51, 51));
+			accountNumberRequiredLabel.setVisible(false);
 		}
 
 		if (!passwordFieldFilled) {
-			this.passwordField.setBorder(BorderFactory.createLineBorder(Color.RED));
-			this.passwordRequiredLabel.setVisible(true);
+			passwordRequiredLabel.setVisible(true);
 		} else {
-			this.passwordField.setBorder(null);
-			this.passwordRequiredLabel.setVisible(false);
-			this.passwordField.setForeground(new Color(51, 51, 51));
+			passwordRequiredLabel.setVisible(false);
 		}
 
-		// if at least one is empty, return false
 		return inputBlzFilled && inputAccountNumberFilled && passwordFieldFilled;
+	}
+
+	public JButton getLoginButton() {
+		return loginButton;
+	}
+
+	public JPasswordField getPasswordField() {
+		return passwordField;
+	}
+
+	public JTextField getInputBlz() {
+		return inputBlz;
+	}
+
+	public JTextField getInputAccountNumber() {
+		return inputAccountNumber;
 	}
 }

@@ -108,8 +108,8 @@ public class Control {
     	
     	// if correct credentials are provided, show the account screen
     	if (bms.checkCredentials(bankCode, accountNumberString, pinCharArray)) {
-    		cardLayout.show(cardPanel, "Account");
-    		this.view.getFrame().revalidate();
+    		// FIXME: is that really the final solution? 
+    		this.view.changeScreen(View.ACCOUNT_SCREEN_KEY);
     		
     		// clear TextFields
     		loginScreen.getInputAccountNumber().setText("");

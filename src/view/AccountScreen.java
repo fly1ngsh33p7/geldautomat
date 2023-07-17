@@ -24,7 +24,9 @@ public class AccountScreen extends JPanel {
 	private JButton btnLogout;
 
 	public AccountScreen() {
-		super.setSize(new Dimension(670, 280));
+		//setSize(new Dimension(670, 280));
+		//setPreferredSize(new Dimension(670, 280));
+		// super.setSize(new Dimension(670, 280));
 		this.setLayout(null);
 
 		initLogoutButton();

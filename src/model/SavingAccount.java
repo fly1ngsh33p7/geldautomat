@@ -8,6 +8,10 @@ public class SavingAccount extends Account {
 		super(accountNumber, pin, balance, bank, owner);
 		this.interest = interest;
 	}
+	
+	public String getAccountType() {
+		return "Sparkonto";
+	}
 
 	public double getInterest() {
 		return interest;

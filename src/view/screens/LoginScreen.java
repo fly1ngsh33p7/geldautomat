@@ -1,4 +1,4 @@
-package view;
+package view.screens;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,6 +35,14 @@ public class LoginScreen extends JPanel {
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.passwordField, 120, SpringLayout.NORTH, this);
 		this.springLayout.putConstraint(SpringLayout.WEST, this.passwordField, 150, SpringLayout.WEST, this);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.passwordField, 17, SpringLayout.EAST, this.loginButton);
+		this.passwordField.setToolTipText("erlaubt (positive) Ganzzahlen.");
+		this.passwordField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// only allow (positive!) whole Numbers characters
+	            removeCharactersFromField(passwordField, "[^0-9]");
+			}
+		});
 		add(this.passwordField);
 
 		this.inputBlz = new JTextField();
@@ -42,16 +50,20 @@ public class LoginScreen extends JPanel {
 		this.springLayout.putConstraint(SpringLayout.WEST, this.inputBlz, 150, SpringLayout.WEST, this);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.inputBlz, 17, SpringLayout.EAST, this.loginButton);
 		this.inputBlz.setForeground(new Color(51, 51, 51));
+		this.inputBlz.setToolTipText("erlaubt alphanumerische Zeichen");
 		this.inputBlz.addKeyListener(new KeyAdapter() {
 			@Override
-			public void keyReleased(KeyEvent e) {
-				// Check if pressed key is alphanumeric
-				String numbers = "0123456789";
-				String abc = "abcdefghijklmnopqrstuvwxyz";
-				if ((numbers + abc + abc.toUpperCase()).indexOf(e.getKeyChar()) == -1) {
-					// TODO
-					return;
-				}
+			public void keyTyped(KeyEvent e) {
+				if (e.getKeyChar() == '\u0001') { // Check for Ctrl+A key combination
+					inputBlz.selectAll(); // Select all text when Ctrl+A is pressed
+		        } else {
+					int cursorPosition = inputBlz.getCaretPosition();
+					
+					// only allow alphanumeric characters
+		            removeCharactersFromField(inputBlz, "[^0-9A-Za-z]");
+		            
+		            inputBlz.setCaretPosition(cursorPosition);
+		        }
 			}
 		});
 		add(this.inputBlz);
@@ -61,6 +73,14 @@ public class LoginScreen extends JPanel {
 		this.springLayout.putConstraint(SpringLayout.WEST, this.inputAccountNumber, 150, SpringLayout.WEST, this);
 		this.springLayout.putConstraint(SpringLayout.SOUTH, this.inputAccountNumber, -72, SpringLayout.SOUTH, this);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.inputAccountNumber, 17, SpringLayout.EAST, this.loginButton);
+		this.inputAccountNumber.setToolTipText("erlaubt alphanumerische Zeichen");
+		this.inputAccountNumber.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// only allow alphanumeric characters
+	            removeCharactersFromField(inputAccountNumber, "[^0-9A-Za-z]");
+			}
+		});
 		this.inputAccountNumber.setColumns(10);
 		add(this.inputAccountNumber);
 	}
@@ -115,11 +135,11 @@ public class LoginScreen extends JPanel {
 		this.passwordRequiredLabel = new JLabel("* bitte ausfüllen");
 		this.springLayout.putConstraint(SpringLayout.WEST, this.passwordRequiredLabel, 9, SpringLayout.EAST, this.passwordField);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.passwordRequiredLabel, -5, SpringLayout.EAST, this);
-		this.passwordRequiredLabel.setSize(new Dimension(140, passwordRequiredLabel.getPreferredSize().height));
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.passwordRequiredLabel, 122, SpringLayout.NORTH, this);
+		this.passwordRequiredLabel.setSize(new Dimension(140, passwordRequiredLabel.getPreferredSize().height));
 		this.passwordRequiredLabel.setVisible(false);
-		add(this.passwordRequiredLabel);
 		this.passwordRequiredLabel.setForeground(Color.RED);
+		add(this.passwordRequiredLabel);
 	}
 
 	public void initLoginButton() {
@@ -134,29 +154,28 @@ public class LoginScreen extends JPanel {
 	}
 
 	public boolean areFieldsFilledAndShowHints() {
-		boolean inputBlzFilled = !inputBlz.getText().isEmpty();
-		boolean inputAccountNumberFilled = !inputAccountNumber.getText().isEmpty();
-		boolean passwordFieldFilled = !(passwordField.getPassword().length == 0);
+		boolean isInputBlzEmpty = inputBlz.getText().isEmpty();
+		boolean isInputAccountNumberEmpty = inputAccountNumber.getText().isEmpty();
+		boolean isPasswordFieldEmpty = passwordField.getPassword().length == 0;
+		
+		// set the visibility to the opposite 
+		bankCodeRequiredLabel.setVisible(isInputBlzEmpty);
+		accountNumberRequiredLabel.setVisible(isInputAccountNumberEmpty);
+		passwordRequiredLabel.setVisible(isPasswordFieldEmpty);
 
-		if (!inputBlzFilled) {
-			bankCodeRequiredLabel.setVisible(true);
-		} else {
-			bankCodeRequiredLabel.setVisible(false);
-		}
-
-		if (!inputAccountNumberFilled) {
-			accountNumberRequiredLabel.setVisible(true);
-		} else {
-			accountNumberRequiredLabel.setVisible(false);
-		}
-
-		if (!passwordFieldFilled) {
-			passwordRequiredLabel.setVisible(true);
-		} else {
-			passwordRequiredLabel.setVisible(false);
-		}
-
-		return inputBlzFilled && inputAccountNumberFilled && passwordFieldFilled;
+		return !isInputBlzEmpty && !isInputAccountNumberEmpty && !isPasswordFieldEmpty;
+	}
+	
+	/**
+	 *	 Removes characters from a JTextField based on a specified regular expression pattern.
+	 *
+	 *	 @param field The JTextField from which characters will be removed.
+	 *   @param characterRegexToMatch The regular expression pattern specifying the characters to be removed.
+	 */
+	private void removeCharactersFromField(JTextField field, String characterRegexToMatch) {
+		String text = field.getText();
+        text = text.replaceAll(characterRegexToMatch, ""); // Remove characters that match characterRegexToMatch
+        field.setText(text);
 	}
 
 	public JButton getLoginButton() {

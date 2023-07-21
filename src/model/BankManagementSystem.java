@@ -4,6 +4,10 @@ package model;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.file.Files;
 import java.io.BufferedReader;
 import java.util.List;
 import java.util.ArrayList;
@@ -12,14 +16,14 @@ import java.util.Set;
 
 import javax.swing.JFileChooser;
 
-import view.ErrorPopup;
-import view.Popup;
+import view.windows.ErrorPopup;
+import view.windows.Popup;
 
 /**
  * BankManagementSystem creates all the Bank, Account and Owner objects from the provided databaseFile.
  * It is a Singleton, so there can be only one BankManagementSystem instance.
  * 
- * THis is the Control part of MVC.
+ * This is the Control part of MVC.
  */
 public class BankManagementSystem {
 	private static BankManagementSystem instance;
@@ -73,7 +77,8 @@ public class BankManagementSystem {
     /**
      * Looks through the accounts-Set and returns the first matching the 
      * provided bankCode and accountNumber.
-     * @return
+     * 
+     * @return matching account or null
      */
     public Account getAccountByBankCodeAndAccountNumber(String bankCode, int accountNumber) {
     	for (Account currentAccount : this.accounts) {
@@ -142,7 +147,8 @@ public class BankManagementSystem {
     private static List<List<String>> getDataByColumn(File file) {
         List<List<String>> columns = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        // open the file with the correct charset to display German characters
+        try (BufferedReader reader = Files.newBufferedReader(file.toPath(), Charset.forName("windows-1252"))) {
         	// technically we don't need to count the header columns, it's 14 for the database file
         	// we use, but let's do that anyways:
             int columnCount = reader.readLine().split(";").length;

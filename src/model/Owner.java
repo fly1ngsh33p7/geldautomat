@@ -82,8 +82,6 @@ public class Owner {
 			return false;
 		}
 		Owner other = (Owner) obj;
-		return customerNumber == other.customerNumber && Objects.equals(firstName, other.firstName)
-				&& Objects.equals(lastName, other.lastName) && Objects.equals(location, other.location)
-				&& Objects.equals(postalCode, other.postalCode) && Objects.equals(street, other.street);
+		return customerNumber == other.customerNumber;
 	}
 }

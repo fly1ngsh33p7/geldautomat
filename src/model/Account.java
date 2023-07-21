@@ -1,9 +1,9 @@
 package model;
 
-public class Account {
+public abstract class Account {
 	private int accountNumber;
 	private int pin;
-	private double balance;
+	private double balance; //TODO ist das hier wirklich als PROZENT interpretiert?? 
 	private Bank bank;
 	private Owner owner;
 	
@@ -16,27 +16,54 @@ public class Account {
 		this.owner = owner;
 	}
 	
-	public int getAccountNumber() {
-		return accountNumber;
+	public abstract String getAccountType();
+	
+	public boolean depositMoney(double amount) {
+		// a negative amount cannot be deposited
+		if (amount < 0) {
+			return false;
+		}
+		
+		this.setBalance(this.getBalance() + amount);
+		
+		//return true to show that this operation succeeded
+		return true;
 	}
 	
-	public void setAccountNumber(int accountNumber) {
-		this.accountNumber = accountNumber;
+	public boolean withdrawMoney(double amount) {
+		// a negative amount cannot be withdrawn
+		if (amount < 0) {
+			return false;
+		}
+		
+		double newAmount = this.getBalance() - amount;
+
+		// if this a SavingsAccount, don't allow a negative balance
+		if (this instanceof SavingAccount) {
+			if ( newAmount < 0 ) {
+				return false; 
+			}
+		}
+		
+		this.setBalance(newAmount);
+		
+		//return true to show that this operation succeeded
+		return true;
+	}
+	
+	public int getAccountNumber() {
+		return accountNumber;
 	}
 	
 	public int getPin() {
 		return pin;
 	}
 	
-	public void setPin(int pin) {
-		this.pin = pin;
-	}
-	
 	public double getBalance() {
 		return balance;
 	}
 	
-	public void setBalance(double balance) {
+	private void setBalance(double balance) {
 		this.balance = balance;
 	}
 	
@@ -44,15 +71,7 @@ public class Account {
 		return bank;
 	}
 
-	public void setBank(Bank bank) {
-		this.bank = bank;
-	}
-
 	public Owner getOwner() {
 		return owner;
-	}
-
-	public void setOwner(Owner owner) {
-		this.owner = owner;
 	}
 }

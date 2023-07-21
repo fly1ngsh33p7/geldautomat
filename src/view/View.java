@@ -1,6 +1,10 @@
 package view;
 
 import javax.swing.*;
+
+import view.screens.AccountScreen;
+import view.screens.LoginScreen;
+
 import java.awt.*;
 
 public class View {
@@ -16,9 +20,10 @@ public class View {
     public View() {
         this.frame = new JFrame("Geldomat");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //this.frame.setResizable(false);
 
         setupCardPanel();
+        
+        this.frame.setResizable(false);
     }
     
     private void setupCardPanel() {
@@ -46,6 +51,7 @@ public class View {
     
     public void changeScreen(String screenKey) {
     	this.getCardLayout().show(cardContainer, screenKey);
+    	this.frame.setResizable(true);
     	
     	// Adjust the size of the frame to fit the preferred size of the active screen;
     	Dimension newDim;
@@ -56,6 +62,9 @@ public class View {
     	}
         this.frame.setSize(newDim);
         
+        this.frame.setResizable(false);
+        this.getCardPanel().repaint();  //FIXME: LoginScreen sieht beim Logout kaputt aus, ist zu groß, obwohl in dieser function die korrekte Größe gesetzt wird
+        this.getCardPanel().revalidate();
     }
     
     public LoginScreen getLoginScreen() {

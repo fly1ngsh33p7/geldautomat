@@ -1,4 +1,4 @@
-package view;
+package view.windows;
 
 import java.lang.Runnable;
 

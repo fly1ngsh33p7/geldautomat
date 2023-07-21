@@ -35,6 +35,6 @@ public class Bank {
 			return false;
 		}
 		Bank other = (Bank) obj;
-		return Objects.equals(bankCode, other.bankCode) && Objects.equals(name, other.name);
+		return Objects.equals(bankCode, other.bankCode);
 	}
 }

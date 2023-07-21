@@ -1,14 +1,14 @@
-package view;
+package view.windows;
 
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-public class TransferScreen extends JFrame {
+public class TransferWindow extends JFrame {
 	private JLabel lblberweisen;
 
-	public TransferScreen(JFrame parentFrame) {
+	public TransferWindow(JFrame parentFrame) {
 		setResizable(false);
 		getContentPane().setLayout(null);
 		{

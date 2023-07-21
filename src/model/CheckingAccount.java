@@ -10,6 +10,10 @@ public class CheckingAccount extends Account {
 		super(accountNumber, pin, balance, bank, owner);
 		this.overdraftAmount = overdraftAmount;
 	}
+	
+	public String getAccountType() {
+		return "Girokonto";
+	}
 
 	public double getOverdraftAmount() {
 		return overdraftAmount;

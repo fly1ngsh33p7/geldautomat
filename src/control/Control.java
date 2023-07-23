@@ -2,6 +2,8 @@ package control;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -12,9 +14,11 @@ import java.awt.CardLayout;
 
 import model.Account;
 import model.AmountHigherThanMoneyWithOverdraftAmountException;
+import model.Bank;
 import model.BankManagementSystem;
 import model.NegativeAmountException;
 import model.NotEnoughMoneyException;
+import model.Owner;
 import model.UserCanOnlyAffordWithOverdraftException;
 import view.View;
 import view.screens.AccountScreen;
@@ -40,6 +44,9 @@ public class Control {
     
     // this prevents opening more than one of these windows
     private boolean isWithdrawOrDepositOrTransferWindowOpen;
+    
+    private Account currentAccount;
+    private List<Account> accountsOfThatBank;
 
     /**
      * Constructs a new Control object with the specified BankManagementSystem and View instances.
@@ -121,7 +128,7 @@ public class Control {
         accountScreen.getLogoutButton().addActionListener(e -> {
         	this.view.changeScreen(View.LOGIN_SCREEN_KEY);
         	accountScreen.resetActualAccountLabels();
-        }); //TODO cleanup ComboBox?
+        });
 
         accountScreen.getOpenWithdrawWindowButton().addActionListener(e -> {
         	if (!isWithdrawOrDepositOrTransferWindowOpen) {
@@ -130,7 +137,7 @@ public class Control {
         		BooleanConsumer<Double> withdrawMoney = amount -> {
         			//if this.bms.getCurrentAccount().withdrawMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
         			try {
-						this.bms.getCurrentAccount().withdrawMoney(amount);
+						this.getCurrentAccount().withdrawMoney(amount);
 					} catch (NegativeAmountException nae) {
 						Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null); 
         				return false;
@@ -145,7 +152,7 @@ public class Control {
         		Runnable onCloseOperation = () -> {
         			setIsWithdrawOrDepositWindowOpen(false);
         			// update AcountScreen
-        			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
+        			accountScreen.setValuesOfActualAccountLabels(this.getCurrentAccount());
         		};
         		
 		        // Open the small window for withdrawing money
@@ -161,10 +168,10 @@ public class Control {
         		BooleanConsumer<Double> depositMoney = amount -> {
         			//if currentAccount.depositMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
         			try {
-	        			this.bms.getCurrentAccount().depositMoney(amount);
+	        			this.getCurrentAccount().depositMoney(amount);
         				return true;
         			} catch(NegativeAmountException ex) {
-        				Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null); //TODO transfer fenster NICHT schließen
+        				Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null);
         				return false;
         			}
         		};
@@ -172,7 +179,7 @@ public class Control {
         		Runnable onCloseOperation = () -> {
         			setIsWithdrawOrDepositWindowOpen(false);
         			// update AcountScreen
-        			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
+        			accountScreen.setValuesOfActualAccountLabels(this.getCurrentAccount());
         		};
         		
 		        // Open the small window for depositing money
@@ -184,9 +191,9 @@ public class Control {
         
         Consumer<Integer> switchAccountOnUserSelect = (selectedIndex) -> {
         	// update the current Account
-        	bms.setCurrentAccount(bms.getAccountsOfThatBank().get(selectedIndex));
+        	setCurrentAccount(getAccountsOfThatBank().get(selectedIndex));
         	// also in view
-        	view.getAccountScreen().setActualAccountLabelsAndCombobox(bms.getAccountsOfThatBank().get(selectedIndex), bms.getAccountsOfThatBank(), selectedIndex);        	
+        	view.getAccountScreen().setActualAccountLabelsAndCombobox(getAccountsOfThatBank().get(selectedIndex), getAccountsOfThatBank(), selectedIndex);        	
         };
         accountScreen.getCombobox().setOnSelect(switchAccountOnUserSelect);
         
@@ -198,7 +205,7 @@ public class Control {
         		Runnable onCloseOperation = () -> {
         			setIsWithdrawOrDepositWindowOpen(false);
         			// update AcountScreen
-        			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
+        			accountScreen.setValuesOfActualAccountLabels(this.getCurrentAccount());
         		};
         		
         		// // Initialize the TransferWindow to perform money transfer in the Consumers and Runnables
@@ -211,7 +218,7 @@ public class Control {
         			Runnable onOkOperationAfterPopupAskingConsent = () -> {
     					try {
     						// Transfer money (with overdraft) from the current account to the specified account
-    						bms.transferMoney(this.bms.getCurrentAccount(), to, amount, true);
+    						bms.transferMoney(this.getCurrentAccount(), to, amount, true);
     						
     						transferWindow.closeWindow();
     					} catch (NegativeAmountException | AmountHigherThanMoneyWithOverdraftAmountException
@@ -222,7 +229,7 @@ public class Control {
         			
         			if (to != null) {
         				try {
-							return bms.transferMoney(this.bms.getCurrentAccount(), to, amount, false);
+							return bms.transferMoney(this.getCurrentAccount(), to, amount, false);
 						} catch (NegativeAmountException nae) {
 							Popup.displayOnlyWithOkButton("Info", "Ein negativer Betrag kann nicht überwiesen werden.", "OK");
 						} catch (AmountHigherThanMoneyWithOverdraftAmountException ahtmwoae) {
@@ -243,6 +250,34 @@ public class Control {
         	}
         });
     }
+    
+    /**
+	 * This method searches through the internal list of accounts and returns a list of accounts
+	 * that belong to the specified {@code owner} and are associated with the specified {@code bank}.
+	 * 
+	 * The resulting list is sorted based on the sorting logic defined in the Account class (ascending
+	 * by accountNumber).
+	 *
+	 * @param owner The owner for whom the accounts are to be retrieved.
+	 * @param bank  The bank from which to retrieve the accounts.
+	 * @return A list of accounts belonging to the specified owner and bank.
+	 *         The list may be empty if no accounts match the criteria.
+	 */
+	public List<Account> getAccountsOfThatBankByOwnerAndBank(Owner owner, Bank bank) {
+		List<Account> accounts = new ArrayList<Account>();
+		
+		// Iterate through all accounts to find the matching ones
+		for (Account currentAccount : this.bms.getAccounts()) {
+			if (currentAccount.getOwner().equals(owner) && currentAccount.getBank().equals(bank)) {
+				accounts.add(currentAccount);
+			}
+		}
+		
+		// Sort the resulting list of accounts by accountNumber (asc)
+		Collections.sort(accounts);
+		
+		return accounts;
+	}
    
     /**
      * Performs the login process using the provided login credentials from the LoginScreen.
@@ -265,11 +300,11 @@ public class Control {
     		
     		// update account in bms
     		Account currentAccount = bms.getAccountByBankCodeAndAccountNumber(bankCode, Integer.parseInt(accountNumberString));
-    		bms.setCurrentAccount(currentAccount);
+    		setCurrentAccount(currentAccount);
     		
     		// display the account in AccountScreen
-    		List<Account> accountsOfThatBank = bms.getAccountsOfThatBankByOwnerAndBank(currentAccount.getOwner(), currentAccount.getBank());
-    		bms.setAccountsOfThatBank(accountsOfThatBank);
+    		List<Account> accountsOfThatBank = getAccountsOfThatBankByOwnerAndBank(currentAccount.getOwner(), currentAccount.getBank());
+    		setAccountsOfThatBank(accountsOfThatBank);
     		view.getAccountScreen().setActualAccountLabelsAndCombobox(currentAccount, accountsOfThatBank, accountsOfThatBank.indexOf(currentAccount));
     		
     		// clear TextFields
@@ -285,5 +320,21 @@ public class Control {
     public void setIsWithdrawOrDepositWindowOpen(boolean newValue) {
     	this.isWithdrawOrDepositOrTransferWindowOpen = newValue;
     }
+    
+    public List<Account> getAccountsOfThatBank() {
+		return accountsOfThatBank;
+	}
+	
+	public void setAccountsOfThatBank(List<Account> accountsOfThatBank) {
+		this.accountsOfThatBank = accountsOfThatBank;
+	}
+	
+	public Account getCurrentAccount() {
+		return currentAccount;
+	}
+
+	public void setCurrentAccount(Account currentAccount) {
+		this.currentAccount = currentAccount;
+	}
     
 }

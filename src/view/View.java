@@ -6,7 +6,6 @@ import view.screens.AccountScreen;
 import view.screens.LoginScreen;
 
 import java.awt.*;
-import java.util.concurrent.Delayed;
 
 /**
  * The View class represents the graphical user interface (GUI) for the Geldomat application.
@@ -107,7 +106,7 @@ public class View {
     	} else { // screenKey: LOGIN_SCREEN_KEY
     		newDim = this.loginScreen.getPreferredSize();
     	}
-    	//FIXME: LoginScreen sieht beim Logout kaputt aus (funktioniert aber), ist zu groß, obwohl in dieser function die korrekte Größe gesetzt wird
+    	//FIXME: LoginScreen looks broken after logout (just a size issue). This, however, sets the correct size.....
         this.frame.setSize(newDim);
         
         this.getCardPanel().repaint();  

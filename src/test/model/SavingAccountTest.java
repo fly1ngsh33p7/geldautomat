@@ -10,8 +10,6 @@ import org.junit.Test;
 
 import model.Bank;
 import model.BankManagementSystem;
-import model.NegativeAmountException;
-import model.NotEnoughMoneyException;
 import model.Owner;
 import model.SavingAccount;
 

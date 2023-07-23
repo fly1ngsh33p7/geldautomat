@@ -8,6 +8,6 @@ public class Main {
 
 		// Initialize and load data via BankManagementSystem.getInstance()
 		// The constructor of Control sets up the rest of the view and thus starts the application
-		Control control = new Control(BankManagementSystem.getInstance(), view);
+		new Control(BankManagementSystem.getInstance(), view);
 	}
 }

@@ -4,8 +4,7 @@ import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.SpringLayout;
 
-import model.NotEnoughMoneyException;
-import view.BooleanConsumer;
+import view.PatternTextField;
 import view.TransferBooleanConsumer;
 
 import javax.swing.JLabel;
@@ -19,7 +18,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.JTextField;
 import javax.swing.JButton;
 
 
@@ -42,9 +40,9 @@ public class TransferWindow extends JFrame {
 	private JLabel amountLabel;
 	private JLabel currencyLabel;
 	private JLabel accountNumberLabel;
-	private JTextField bankCodeField;
-	private JTextField amountField;
-	private JTextField accountNumberField;
+	private PatternTextField bankCodeField;
+	private PatternTextField amountField;
+	private PatternTextField accountNumberField;
 	private JButton cancelButton;
 	private JButton transferButton;
 	
@@ -52,7 +50,6 @@ public class TransferWindow extends JFrame {
 	private SpringLayout springLayout;
 	
 	private Runnable onCloseOperation;
-	private JFrame parentFrame;
 	private TransferBooleanConsumer<String, Integer, Double> transferMoney;
 
 	/**
@@ -96,7 +93,6 @@ public class TransferWindow extends JFrame {
 	 * @param onCloseOperation An optional action to be executed when the window is closed. It is triggered before the window is closed.
 	 */
 	public void setParentFrameTransferMoneyConsumerAndOnCloseOperation(JFrame parentFrame, TransferBooleanConsumer<String, Integer, Double> transferMoney, Runnable onCloseOperation) {
-		this.parentFrame = parentFrame;
 		this.transferMoney = transferMoney;
 		this.onCloseOperation = onCloseOperation;
 		
@@ -143,9 +139,10 @@ public class TransferWindow extends JFrame {
 	 */
 	private void onSubmitFunction() {
 		if (!this.bankCodeField.getText().equals("") && !this.amountField.getText().equals("") && !this.accountNumberField.getText().equals("")) {
-			
+			String amount = this.amountField.getText();
+			amount = amount.replace(",", ".");
 			// run transferMoney
-			boolean wasOperationSuccessful = transferMoney.accept(this.bankCodeField.getText(), Integer.parseInt(this.accountNumberField.getText()), Double.parseDouble(this.amountField.getText())); // TODO gescheites Parsing wie bei den anderen stellen auch
+			boolean wasOperationSuccessful = transferMoney.accept(this.bankCodeField.getText(), Integer.parseInt(this.accountNumberField.getText()), Double.parseDouble(amount));
 			
 			// Close the transfer window if it was successful:
 			if (wasOperationSuccessful) {
@@ -243,7 +240,7 @@ public class TransferWindow extends JFrame {
 	}
 
 	private void initBankCodeField() {
-		this.bankCodeField = new JTextField();
+		this.bankCodeField = new PatternTextField("[0-9a-zA-Z]*");
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.bankCodeField, 50, SpringLayout.NORTH, this.panel);
 		this.springLayout.putConstraint(SpringLayout.WEST, this.bankCodeField, 89, SpringLayout.WEST, this.panel);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.bankCodeField, 197, SpringLayout.WEST, this.panel);
@@ -252,7 +249,7 @@ public class TransferWindow extends JFrame {
 	}
 
 	private void initAmountField() {
-		this.amountField = new JTextField();
+		this.amountField = new PatternTextField("[1-9][0-9]*[,.]?[0-9]*");
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.amountField, 80, SpringLayout.NORTH, this.panel);
 		this.springLayout.putConstraint(SpringLayout.WEST, this.amountField, 89, SpringLayout.WEST, this.panel);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.amountField, 181, SpringLayout.WEST, this.panel);
@@ -275,7 +272,7 @@ public class TransferWindow extends JFrame {
 	}
 
 	private void initAccountNumberField() {
-		this.accountNumberField = new JTextField();
+		this.accountNumberField = new PatternTextField("[0-9]*");
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.accountNumberField, 50, SpringLayout.NORTH, this.panel);
 		this.springLayout.putConstraint(SpringLayout.WEST, this.accountNumberField, 333, SpringLayout.WEST, this.panel);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.accountNumberField, 433, SpringLayout.WEST, this.panel);

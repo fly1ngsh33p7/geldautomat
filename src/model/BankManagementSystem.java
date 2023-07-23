@@ -1,9 +1,5 @@
 package model;
 
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,16 +13,12 @@ import java.util.Set;
 public class BankManagementSystem {
 	private static BankManagementSystem instance;
 	
-	// it is unclear if BMS needs to know these all: (Login uses just accounts)
+	// it is unclear to me if BMS needs to know these all: (Login uses just accounts, the rest is not needed for anything)
     private Set<Bank> banks;
     private Set<Account> accounts;
     private Set<Owner> owners;
     
-    private Account currentAccount; // FIXME: I'm not so sure if bms should have this: it's supposed to KNOW all accounts not the current login!
-    private List<Account> accountsOfThatBank;// FIXME: I'm not so sure if bms should have this: it's supposed to KNOW all accounts not the current login!
-    
     private BankManagementSystem() {
-    	// FIXME the databaseFile is essentially a list of accounts and those reference banks and owners - do we need those Sets then?
     	this.banks = new HashSet<Bank>();
     	this.accounts = new HashSet<Account>();
     	this.owners = new HashSet<Owner>();
@@ -137,50 +129,9 @@ public class BankManagementSystem {
     	// returns true if the pin matches
     	return account.getPin() == pin;
     }
+    
+    public Set<Account> getAccounts() {
+    	return accounts;
+    }
 
-	/**
-	 * This method searches through the internal list of accounts and returns a list of accounts
-	 * that belong to the specified {@code owner} and are associated with the specified {@code bank}.
-	 * 
-	 * The resulting list is sorted based on the sorting logic defined in the Account class (ascending
-	 * by accountNumber).
-	 *
-	 * @param owner The owner for whom the accounts are to be retrieved.
-	 * @param bank  The bank from which to retrieve the accounts.
-	 * @return A list of accounts belonging to the specified owner and bank.
-	 *         The list may be empty if no accounts match the criteria.
-	 */
-	public List<Account> getAccountsOfThatBankByOwnerAndBank(Owner owner, Bank bank) {
-		List<Account> accounts = new ArrayList<Account>();
-		
-		// Iterate through all accounts to find the matching ones
-		for (Account currentAccount : this.accounts) {
-			if (currentAccount.getOwner().equals(owner) && currentAccount.getBank().equals(bank)) {
-				accounts.add(currentAccount);
-			}
-		}
-		
-		// Sort the resulting list of accounts by accountNumber (asc)
-		Collections.sort(accounts);
-		
-		return accounts; //TODO ist null schlimm als return wert?
-	}
-	
-	// getter and setter
-	
-	public List<Account> getAccountsOfThatBank() {
-		return accountsOfThatBank;
-	}
-	
-	public void setAccountsOfThatBank(List<Account> accountsOfThatBank) {
-		this.accountsOfThatBank = accountsOfThatBank;
-	}
-	
-	public Account getCurrentAccount() {
-		return currentAccount;
-	}
-
-	public void setCurrentAccount(Account currentAccount) {
-		this.currentAccount = currentAccount;
-	}
 }

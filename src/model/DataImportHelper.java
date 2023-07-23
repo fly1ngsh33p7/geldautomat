@@ -136,7 +136,6 @@ public class DataImportHelper {
     
     private void extractFromData(Set<Account> accounts, BankManagementSystem bms) {
     	try {
-	    	//TODO do I need to sanitize all inputs? (yes: do it where data is created) (because of "'08123" in postalCode and such
 	    	for (int currentAccountIndex = 0; currentAccountIndex < data.get(0).size(); currentAccountIndex++) {
 	    		//---extract-the-current-Bank---
 				String bankName = data.get(0).get(currentAccountIndex);

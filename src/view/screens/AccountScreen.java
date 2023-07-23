@@ -92,13 +92,9 @@ public class AccountScreen extends JPanel {
      *                           Set to -1 if none is selected.
      */
 	public void setActualAccountLabelsAndCombobox(Account account, List<Account> accountListToDisplay, int selectedIndex) {
-		//TODO this method is a mess: when do we call which method and why? -> more methods?
-		if (account != null) {
-			setValuesOfActualAccountLabels(account);
-		} else {
-			resetActualAccountLabels();
-		}
+		setValuesOfActualAccountLabels(account);
 		
+		// Fill Combobox if accountList is present
 		if (accountListToDisplay != null) {
 			// deactivate the ItemListener
 			this.accountsAtThisBankComboBox.setInInitMode(true);
@@ -385,7 +381,6 @@ public class AccountScreen extends JPanel {
 	    } else {
 	    	accountsAtThisBankComboBox.setSelectedIndex(-1);
 	    }
-        // TODO test/try this
 	}
 	
 	public JButton getOpenWithdrawWindowButton() {

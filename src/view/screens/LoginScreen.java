@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import view.PatternTextField;
 
 /**
  * The LoginScreen class represents a graphical user interface panel for the login screen in a bank application.
@@ -25,8 +26,8 @@ public class LoginScreen extends JPanel {
 	// Components for the login screen
 	private JButton loginButton;
 	private JPasswordField passwordField;
-	private JTextField inputBlz;
-	private JTextField inputAccountNumber;
+	private PatternTextField inputBlz;
+	private PatternTextField inputAccountNumber;
 	private JLabel bankCodeRequiredLabel;
 	private JLabel accountNumberRequiredLabel;
 	private JLabel passwordRequiredLabel;
@@ -75,7 +76,6 @@ public class LoginScreen extends JPanel {
 		return !isInputBlzEmpty && !isInputAccountNumberEmpty && !isPasswordFieldEmpty;
 	}
 	
-	//TODO: do I want this?
 	/**
 	 *	 Removes characters from a JTextField based on a specified regular expression pattern.
 	 *
@@ -117,47 +117,25 @@ public class LoginScreen extends JPanel {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				// only allow (positive!) whole Numbers characters
-	            removeCharactersFromField(passwordField, "[^0-9]");
+	            removeCharactersFromField(passwordField, "[^0-9]*");
 			}
 		});
 		add(this.passwordField);
 
-		this.inputBlz = new JTextField();
+		this.inputBlz = new PatternTextField("[0-9A-Za-z]*");
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.inputBlz, 57, SpringLayout.NORTH, this);
 		this.springLayout.putConstraint(SpringLayout.WEST, this.inputBlz, 150, SpringLayout.WEST, this);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.inputBlz, 17, SpringLayout.EAST, this.loginButton);
 		this.inputBlz.setForeground(new Color(51, 51, 51));
 		this.inputBlz.setToolTipText("erlaubt alphanumerische Zeichen");
-		this.inputBlz.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				if (e.getKeyChar() == '\u0001') { // Check for Ctrl+A key combination
-					inputBlz.selectAll(); // Select all text when Ctrl+A is pressed
-		        } else {
-					int cursorPosition = inputBlz.getCaretPosition();
-					
-					// only allow alphanumeric characters
-		            removeCharactersFromField(inputBlz, "[^0-9A-Za-z]");
-		            
-		            inputBlz.setCaretPosition(cursorPosition);
-		        }
-			}
-		});
 		add(this.inputBlz);
 
-		this.inputAccountNumber = new JTextField();
+		this.inputAccountNumber = new PatternTextField("[0-9]*");
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.inputAccountNumber, 89, SpringLayout.NORTH, this);
 		this.springLayout.putConstraint(SpringLayout.WEST, this.inputAccountNumber, 150, SpringLayout.WEST, this);
 		this.springLayout.putConstraint(SpringLayout.SOUTH, this.inputAccountNumber, -72, SpringLayout.SOUTH, this);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.inputAccountNumber, 17, SpringLayout.EAST, this.loginButton);
-		this.inputAccountNumber.setToolTipText("erlaubt alphanumerische Zeichen");
-		this.inputAccountNumber.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				// only allow alphanumeric characters
-	            removeCharactersFromField(inputAccountNumber, "[^0-9A-Za-z]");
-			}
-		});
+		this.inputAccountNumber.setToolTipText("erlaubt Zahlen");
 		this.inputAccountNumber.setColumns(10);
 		add(this.inputAccountNumber);
 	}

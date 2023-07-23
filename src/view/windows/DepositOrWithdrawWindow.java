@@ -3,7 +3,7 @@ package view.windows;
 import javax.swing.*;
 
 import view.BooleanConsumer;
-import view.KeyAdapterWithSelectSupport;
+import view.PatternTextField;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -47,7 +47,7 @@ import java.awt.event.WindowEvent;
  * depositWindow.setVisible(true);
  */
 public class DepositOrWithdrawWindow extends JFrame {
-	private JTextField inputField;
+	private PatternTextField inputField;
 	private JButton submitButton;
 	private JButton cancelButton;
 	private JPanel panel;
@@ -108,9 +108,11 @@ public class DepositOrWithdrawWindow extends JFrame {
 	 */
 	private void onSubmitFunction(BooleanConsumer<Double> depositOrWithdrawOnOk, Runnable onCloseOperation) {
 		if (!this.inputField.getText().equals("")) {
+			String text = this.inputField.getText();
+			text = text.replace(",", ".");
 			
 			// run depositOrWithdrawOnOk
-			boolean wasOperationSuccessful = depositOrWithdrawOnOk.accept(Double.parseDouble(this.inputField.getText()));
+			boolean wasOperationSuccessful = depositOrWithdrawOnOk.accept(Double.parseDouble(text));
 			
 			// Close the small window if it was successful:
 			if (wasOperationSuccessful) {
@@ -119,43 +121,13 @@ public class DepositOrWithdrawWindow extends JFrame {
 			}
 		}
 	}
-	
-	//TODO is this wanted? maybe just to remove "€" oder so
-	/**
-	 * This method is used to format the input text in the JTextField of the DepositOrWithdrawWindow.
-	 * It ensures that the entered text only contains digits, commas, dots, and minus signs, effectively removing any other characters.
-	 * After formatting the text, it sets the modified text back to the input field.
-	 * Additionally, the method attempts to parse the formatted text as a positive amount in euros and cents (a Double value).
-	 * If parsing fails due to invalid input, it catches the NumberFormatException and handles any format issues or invalid input.
-	 * This method is called automatically when the user types in the input field.
-	 * 
-	 * Note: The method is currently commented with "TODO" for additional input validation or checks, which could be added if necessary.
-	 * Developers can modify the method as needed to include specific input validation logic based on their requirements.
-	 * 
-	 * @param inputField The JTextField that holds the entered text.
-	 */
-	private void formatToNumber(JTextField inputField) {
-        try {
-            String text = inputField.getText();
-            
-            if (text.equals("")) return;
-            
-            text = text.replaceAll("[^0-9.,]", ""); // Remove non-digit characters except commas, dots, and minus sign
-            inputField.setText(text);
-            
-            // Perform additional input validation or checks here TODO wie in dem loadData in BankManagementSystem
-            double amount = Double.parseDouble(text);
-        } catch (NumberFormatException ex) {
-            // Handle format issues or invalid input FIXME
-        }
-    }
 
 	// init methods
 	
 	private void initInputField() {
-		inputField = new JTextField(10);
+		inputField = new PatternTextField("[1-9][0-9]*[,.]?[0-9]*");
+		inputField.setColumns(10);
 		inputField.setToolTipText("positive Amount in €, no \"€\" necessary.");
-		inputField.addKeyListener(new KeyAdapterWithSelectSupport(() -> formatToNumber(inputField)));//TODO in der mitte reinschreiben geht iwi nicht MEHR -> vllt doch JFormattedField oder so? oder erst gar nicht formatieren sondern hinweisen, falls ungültig? und TODO: "," nicht als comma erkannt
 		panel.add(inputField);
 	}
 	

@@ -30,7 +30,7 @@ import java.util.Objects;
 public class Bank {
 	private String bankCode;
 	private String name;
-	private BankManagementSystem bms;  // with how I structured my program, this is not needed.
+	private BankManagementSystem bms;  // with how I structured my program, this is technically not needed.
 	
 	/**
      * Constructs a Bank object with the specified bank code and name.

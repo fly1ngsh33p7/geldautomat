@@ -2,6 +2,7 @@ package view.windows;
 
 import javax.swing.*;
 
+import model.Account;
 import view.BooleanConsumer;
 import view.KeyAdapterWithSelectSupport;
 
@@ -12,47 +13,56 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class SmallWindow extends JFrame {
+public class DepositOrWithdrawWindow extends JFrame {
 	private JTextField inputField;
 	private JButton submitButton;
 	private JButton cancelButton;
 	private JPanel panel;
 
-	public SmallWindow(JFrame parentFrame, String submitAndWindowLabel, BooleanConsumer<Double> depositOrWithdrawOnOk) {
-		this(parentFrame, submitAndWindowLabel, depositOrWithdrawOnOk, null);
-	}
-	
-	public SmallWindow(JFrame parentFrame, String submitAndWindowLabel, BooleanConsumer<Double> depositOrWithdrawOnOk, Runnable onCloseAction) {
-		initSmallWindow(parentFrame, depositOrWithdrawOnOk, onCloseAction);
-		
-		setTitle(submitAndWindowLabel);
-		this.submitButton.setText(submitAndWindowLabel);
-	}
-
-	private void initSmallWindow(JFrame parentFrame, BooleanConsumer<Double> depositOrWithdrawOnOk, Runnable onCloseAction) {
+	public DepositOrWithdrawWindow(JFrame parentFrame, String submitAndWindowLabel, BooleanConsumer<Double> depositOrWithdrawOnOk, Runnable onCloseOperation) {
 		setPreferredSize(new Dimension(300, 70));
 		setResizable(false);
+		setTitle(submitAndWindowLabel);
 		
 		// Add a WindowListener to handle the closing event when clicking the (X)-button
-		if (onCloseAction != null) {
+		if (onCloseOperation != null) {
             addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    onCloseAction.run();
+                    onCloseOperation.run();
                 }
             });
         }
+		
+		// Create a panel to hold the components
+		panel = new JPanel();
 
 		// Create the input field for values in euros and cents
-		inputField = new JTextField(10);
-		inputField.setToolTipText("Amount in €, no \"€\" necessary.");
-		inputField.addKeyListener(new KeyAdapterWithSelectSupport(() -> formatToNumber(inputField)));
-        
+		initInputField();
+		
 		// Create the submit and cancel buttons
+		initButtons(submitAndWindowLabel, depositOrWithdrawOnOk, onCloseOperation);
+
+		// Add the panel to the small window and make it visible
+		getContentPane().add(panel);
+		setLocationRelativeTo(parentFrame);
+		pack();
+	}
+
+	private void initInputField() {
+		inputField = new JTextField(10);
+		inputField.setToolTipText("positive Amount in €, no \"€\" necessary.");
+		inputField.addKeyListener(new KeyAdapterWithSelectSupport(() -> formatToNumber(inputField)));//TODO in der mitte reinschreiben geht iwi nicht MEHR -> vllt doch JFormattedField oder so? oder erst gar nicht formatieren sondern hinweisen, falls ungültig? und TODO: "," nicht als comma erkannt
+		panel.add(inputField);
+	}
+	
+	private void initButtons(String submitAndWindowLabel, BooleanConsumer<Double> depositOrWithdrawOnOk, Runnable onCloseOperation) {
 		submitButton = new JButton("Submit");
+		this.submitButton.setText(submitAndWindowLabel);
+		
 		cancelButton = new JButton("Abbrechen");
 
-		ActionListener onSubmit = e -> onSubmitFunction(depositOrWithdrawOnOk, onCloseAction);
+		ActionListener onSubmit = e -> onSubmitFunction(depositOrWithdrawOnOk, onCloseOperation);
 		
 		// Add the submit action 
 		submitButton.addActionListener(onSubmit);
@@ -60,7 +70,7 @@ public class SmallWindow extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-	        		onSubmitFunction(depositOrWithdrawOnOk, onCloseAction);
+	        		onSubmitFunction(depositOrWithdrawOnOk, onCloseOperation);
 	            }
 			}
 		});
@@ -71,27 +81,15 @@ public class SmallWindow extends JFrame {
 			this.inputField.setText("");
 			
 			// Run onCloseAction and close the small window
-			onCloseAction.run();
+			onCloseOperation.run();
 			dispose();
 		});
-
-		// Create a panel to hold the components
-		panel = new JPanel();
-		panel.add(inputField);
+		
 		panel.add(submitButton);
 		panel.add(cancelButton);
-
-		// Add the panel to the small window
-		getContentPane().add(panel);
-
-		// Set the location of the small window relative to the parent frame
-		setLocationRelativeTo(parentFrame);
-
-		// Pack and make the small window visible
-		pack();
 	}
 	
-	private void onSubmitFunction(BooleanConsumer<Double> depositOrWithdrawOnOk, Runnable onCloseAction) {
+	private void onSubmitFunction(BooleanConsumer<Double> depositOrWithdrawOnOk, Runnable onCloseOperation) {
 		if (!this.inputField.getText().equals("")) {
 			
 			// run depositOrWithdrawOnOk
@@ -99,7 +97,7 @@ public class SmallWindow extends JFrame {
 			
 			// Close the small window if it was successful:
 			if (wasOperationSuccessful) {
-				onCloseAction.run();
+				onCloseOperation.run();
 				dispose();
 			}
 		}
@@ -111,7 +109,7 @@ public class SmallWindow extends JFrame {
             
             if (text.equals("")) return;
             
-            text = text.replaceAll("[^0-9.,-]", ""); // Remove non-digit characters except commas, dots, and minus sign
+            text = text.replaceAll("[^0-9.,]", ""); // Remove non-digit characters except commas, dots, and minus sign
             inputField.setText(text);
             
             // Perform additional input validation or checks here TODO wie in dem loadData in BankManagementSystem

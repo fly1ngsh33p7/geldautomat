@@ -1,9 +1,8 @@
 package control;
 
-import java.awt.Dimension;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.function.Consumer;
 
 import javax.swing.JButton;
@@ -17,7 +16,8 @@ import view.View;
 import view.screens.AccountScreen;
 import view.screens.LoginScreen;
 import view.windows.Popup;
-import view.windows.SmallWindow;
+import view.windows.TransferWindow;
+import view.windows.DepositOrWithdrawWindow;
 import view.BooleanConsumer;
 
 public class Control {
@@ -69,8 +69,9 @@ public class Control {
         });
         
         KeyAdapter performLoginOnEnter = new KeyAdapter() {
+        	// keyTyped() is already used to format the text
 			@Override
-			public void keyTyped(KeyEvent e) {
+			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 	        		performLogin(loginScreen, cardLayout, cardPanel);
 	            }
@@ -93,25 +94,23 @@ public class Control {
         	if (!isWithdrawOrDepositWindowOpen) {
         		isWithdrawOrDepositWindowOpen = true;
         		
-        		Account currentAccount = accountScreen.getCurrentAccount();
-        		
         		BooleanConsumer<Double> withdrawMoney = amount -> {
-        			//if currentAccount.withdrawMoney(amount) FAILED, do not close SmallWindow -> return false;
-        			if(!currentAccount.withdrawMoney(amount)) {
+        			//if currentAccount.withdrawMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
+        			if(!this.bms.getCurrentAccount().withdrawMoney(amount)) {
         				Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null);
         				return false;
         			}
-        			// TODO operation was successful -> update balance on Screen TODO debug: did it really change?
         			return true;
         		};
         		
         		Runnable onCloseOperation = () -> {
         			setIsWithdrawOrDepositWindowOpen(false);
+        			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
         		};
         		
 		        // Open the small window
-		        SmallWindow smallWindow = new SmallWindow(frame, "Auszahlen", withdrawMoney, onCloseOperation);
-		        smallWindow.setVisible(true);
+		        DepositOrWithdrawWindow depositOrWithdrawWindow = new DepositOrWithdrawWindow(frame, "Auszahlen", withdrawMoney, onCloseOperation);
+		        depositOrWithdrawWindow.setVisible(true);
         	}
         });
 
@@ -119,25 +118,48 @@ public class Control {
         	if (!isWithdrawOrDepositWindowOpen) {
         		isWithdrawOrDepositWindowOpen = true;
         		
-        		Account currentAccount = accountScreen.getCurrentAccount();
-        		
         		BooleanConsumer<Double> depositMoney = amount -> {
-        			//if currentAccount.depositMoney(amount) FAILED, do not close SmallWindow -> return false;
-        			if(!currentAccount.depositMoney(amount)) {
-        				Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null);
-        				return false; //TODO only run, when Popup is closed again -> Callback stuff?  force Popup "always on top"?
+        			//if currentAccount.depositMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
+        			if(!this.bms.getCurrentAccount().depositMoney(amount)) {
+        				Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null); //TODO negativer Betrag: nicht zulassen, um overdraftAmount mit boolean handeln zu können? oder ENUM flag (OK, NEG, OVER) oder so?  
+        				return false;
         			}
-        			// TODO operation was successful -> update balance on Screen TODO debug: did it really change?
         			return true;
         		};
         		
         		Runnable onCloseOperation = () -> {
         			setIsWithdrawOrDepositWindowOpen(false);
+        			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
         		};
         		
 		        // Open the small window
-		        SmallWindow smallWindow = new SmallWindow(frame, "Einzahlen", depositMoney, onCloseOperation);
-		        smallWindow.setVisible(true);
+		        DepositOrWithdrawWindow depositOrWithdrawWindow = new DepositOrWithdrawWindow(frame, "Einzahlen", depositMoney, onCloseOperation);
+		        depositOrWithdrawWindow.setVisible(true);
+        	}
+        });
+        
+        
+        Consumer<Integer> switchAccountOnUserSelect = (selectedIndex) -> {
+        	// update the current Account
+        	bms.setCurrentAccount(bms.getAccountsOfThatBank().get(selectedIndex));
+        	// also in view
+        	view.getAccountScreen().setActualAccountLabelsAndCombobox(bms.getAccountsOfThatBank().get(selectedIndex), bms.getAccountsOfThatBank(), selectedIndex);        	
+        };
+        accountScreen.getCombobox().setOnSelect(switchAccountOnUserSelect);
+        
+        
+        accountScreen.getOpenTransferWindowButton().addActionListener(e -> {
+        	if (!isWithdrawOrDepositWindowOpen) {
+        		isWithdrawOrDepositWindowOpen = true;
+        		
+        		Runnable onCloseOperation = () -> {
+        			setIsWithdrawOrDepositWindowOpen(false);
+        			// update AcountScreen
+        			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
+        		};
+        		
+        		TransferWindow transferWindow = new TransferWindow(frame, onCloseOperation);
+        		transferWindow.setVisible(true);
         	}
         });
     }
@@ -149,14 +171,17 @@ public class Control {
     	
     	// if correct credentials are provided, show the account screen
     	if (bms.checkCredentials(bankCode, accountNumberString, pinCharArray)) {
-    		// FIXME: is that really the final solution? 
+    		// show AccountScreen
     		this.view.changeScreen(View.ACCOUNT_SCREEN_KEY);
     		
-    		//TODO was darf ich denn im AccountScreen anzeigen? -> ich brauch die AccountListe und den currentAccount (mit dieser AccountNumber|BankCode-Kombo)
-    		//this.view.getAccountScreen().setCurrentAccount() -> die Liste Gibts nicht????, die hat BMS???? (also getAccountsByBankCodeAndAccountNumber() hat die, dann die accountNumber und Typ in der Combobox -> da könnte man über bms wieder den Account zum Anzeigen kriegen. 
-    		
+    		// update account in bms
     		Account currentAccount = bms.getAccountByBankCodeAndAccountNumber(bankCode, Integer.parseInt(accountNumberString));
-    		view.getAccountScreen().setCurrentAccount(currentAccount);
+    		bms.setCurrentAccount(currentAccount);
+    		
+    		// display the account in AccountScreen
+    		List<Account> accountsOfThatBank = bms.getAccountsOfThatBankByOwnerAndBank(currentAccount.getOwner(), currentAccount.getBank());
+    		bms.setAccountsOfThatBank(accountsOfThatBank);
+    		view.getAccountScreen().setActualAccountLabelsAndCombobox(currentAccount, accountsOfThatBank, accountsOfThatBank.indexOf(currentAccount));
     		
     		// clear TextFields
     		loginScreen.getInputAccountNumber().setText("");

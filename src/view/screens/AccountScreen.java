@@ -11,6 +11,7 @@ import model.Account;
 import model.CheckingAccount;
 import model.Owner;
 import model.SavingAccount;
+import view.ItemClickAwareComboBox;
 
 public class AccountScreen extends JPanel {
 	private JButton logoutButton;
@@ -25,13 +26,9 @@ public class AccountScreen extends JPanel {
 	private JLabel accountTypeLabel;
 	private JLabel overdraftAmountOrInterestLabel;
 	private JLabel balanceLabel;
-	private JComboBox accountsAtThisBankComboBox;
-	private JButton btnLogout;
+	private ItemClickAwareComboBox<String> accountsAtThisBankComboBox;
 	private SpringLayout springLayout;
 
-	private List<Account> accountList;
-	private Account currentAccount; // FIXME das soll in BankManagementSystem, hier nur Account entgegennehmen und
-									// Labels setzen
 	private JLabel actualAccountNumberLabel;
 	private JLabel actualFirstNameLastNameLabel;
 	private JLabel actualBankLabel;
@@ -40,77 +37,97 @@ public class AccountScreen extends JPanel {
 	private JLabel actualOverdraftAmountOrInterestLabel;
 	private JLabel actualBalanceLabel;
 	private JLabel actualBankCodeLabel;
-
-	public AccountScreen(List<Account> accountList, int indexOfAccountToDisplay) {
-		this(accountList);
-
-		setCurrentAccount(this.accountList.get(indexOfAccountToDisplay));
-
-		this.accountsAtThisBankComboBox.setSelectedIndex(0);
-
-	}
-
-	public AccountScreen(List<Account> accountList) {
-		this();
-		this.accountList = accountList;
-	}
-
+	
 	public AccountScreen() {
 		setPreferredSize(new Dimension(670, 357));
 		springLayout = new SpringLayout();
 		setLayout(springLayout);
 
-		this.accountList = new ArrayList<>();
-
 		initLogoutButton();
 		initDepositWindowButton();
 		initWithdrawWindowButton();
-		initAccountsAtThisBankComboBox();
-		initTransferButton();
-		
+		initTransferButton(); //TODO
 		
 		initLabels();
 		initActualLabels();
+
+		initComboBox();
 	}
 
-	public void setCurrentAccount(Account account) {
-		this.currentAccount = account; // FIXME, eig in BankManagementSystem, also das Speichern des currentAccounts
-
-		// set the values in the actualLabels
-		Owner owner = this.currentAccount.getOwner();
+	public void setActualAccountLabelsAndCombobox(Account account, List<Account> accountListToDisplay, int selectedIndex) {
+		//TODO this method is a mess: when do we call which method and why? -> more methods?
+		if (account != null) {
+			setValuesOfActualAccountLabels(account);
+		} else {
+			resetActualAccountLabels();
+		}
 		
-		this.actualAccountNumberLabel.setText("" + this.currentAccount.getAccountNumber());
+		if (accountListToDisplay != null) {
+			// deactivate the ItemListener
+			this.accountsAtThisBankComboBox.setInInitMode(true);
+			
+			setAccountsAtThisBankInCombobox(account, accountListToDisplay);
+			this.accountsAtThisBankComboBox.setSelectedIndex(selectedIndex);
+			
+			//activate the ItemListener
+			this.accountsAtThisBankComboBox.setInInitMode(false);
+		} else {
+			resetCombobox();
+		}
+	}
+	
+	public void setValuesOfActualAccountLabels(Account account) {
+		Owner owner = account.getOwner();
+		
+		// set the values in the actualLabels
+		this.actualAccountNumberLabel.setText("" + account.getAccountNumber());
 		this.actualFirstNameLastNameLabel.setText(owner.getFirstName() + " " + owner.getLastName());
 		this.actualAddressLabel.setText(owner.getStreet() + ", " + owner.getPostalCode() + " " + owner.getLocation());
-		this.actualBankLabel.setText(this.currentAccount.getBank().getName());
-		this.actualBankCodeLabel.setText(this.currentAccount.getBank().getBankCode());
-		this.actualAccountTypeLabel.setText(this.currentAccount.getAccountType());
-		this.actualBalanceLabel.setText("" + this.currentAccount.getBalance() + " €");
+		this.actualBankLabel.setText(account.getBank().getName());
+		this.actualBankCodeLabel.setText(account.getBank().getBankCode());
+		this.actualAccountTypeLabel.setText(account.getAccountType());
+		this.actualBalanceLabel.setText(String.format("%.2f €", account.getBalance()));
 
-		if (this.currentAccount instanceof SavingAccount) {
+		if (account instanceof SavingAccount) {
 			this.overdraftAmountOrInterestLabel.setText("Zins:");
 			
-			double interestRate = ((SavingAccount) this.currentAccount).getInterest();
-			this.actualOverdraftAmountOrInterestLabel.setText("" + interestRate + " %"); //FIXME ist es wirklich in prozent eingelesen?
-		} else if (this.currentAccount instanceof CheckingAccount) {
+			double interestRate = ((SavingAccount) account).getInterest();
+			this.actualOverdraftAmountOrInterestLabel.setText(String.format("%.3f", interestRate) + " %");
+		} else if (account instanceof CheckingAccount) {
 			this.overdraftAmountOrInterestLabel.setText("Überziehungsbetrag:");
 			
-			double overdraftAmount = ((CheckingAccount) this.currentAccount).getOverdraftAmount();
-			this.actualOverdraftAmountOrInterestLabel.setText("" + overdraftAmount + " €");
+			double overdraftAmount = ((CheckingAccount) account).getOverdraftAmount();
+			this.actualOverdraftAmountOrInterestLabel.setText(String.format("%.2f €", overdraftAmount));
 		}
-
 	}
 
-	public Account getCurrentAccount() {
-		return this.currentAccount;
+	private void resetActualAccountLabels() {
+		this.actualAccountNumberLabel.setText("");
+		this.actualFirstNameLastNameLabel.setText("");
+		this.actualAddressLabel.setText("");
+		this.actualBankLabel.setText("");
+		this.actualBankCodeLabel.setText("");
+		this.actualAccountTypeLabel.setText("");
+		this.actualBalanceLabel.setText("");
+		this.actualOverdraftAmountOrInterestLabel.setText("");
 	}
+	
+	private void setAccountsAtThisBankInCombobox(Account currentAccount, List<Account> accountList) {
+		accountsAtThisBankComboBox.removeAllItems(); // Clear the combo box before adding items
 
-	private void clearActualLabels() {
-		// TODO setText("") bei allen actualLabels machen
+	    // Add each account to the combo box
+	    for (Account account : accountList) {
+	    	String label = account.getAccountNumber() + " (" + account.getAccountType() + ")";
+	        accountsAtThisBankComboBox.addItem(label);
+	        //TODO technically it should be enough to send the index, since another call to getByXYZ() (or the List in BMS/Control) will result in the same result
+	    }
+
+	    // set currentAccount as SelectedItem
+        accountsAtThisBankComboBox.setSelectedItem(currentAccount);
 	}
-
-	private void switchAccount(int accountIndex) {
-		this.setCurrentAccount(this.accountList.get(accountIndex));
+	
+	private void resetCombobox() {
+		// TODO reset Combobox
 	}
 
 	private void initLabels() {
@@ -192,10 +209,8 @@ public class AccountScreen extends JPanel {
 		add(this.firstNameLastNameLabel);
 	}
 
-	private void initAccountsAtThisBankComboBox() {
-		// this.accountList = Arrays.asList("8008135 (Girokonto)", "weiter", "Konten");
-		// TODO this needs data from outside
-		this.accountsAtThisBankComboBox = new JComboBox<>(new DefaultComboBoxModel<>(this.accountList.toArray()));
+	private void initComboBox() {
+		this.accountsAtThisBankComboBox = new ItemClickAwareComboBox<>();
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.accountsAtThisBankComboBox, 12, SpringLayout.NORTH,
 				this);
 		this.springLayout.putConstraint(SpringLayout.WEST, this.accountsAtThisBankComboBox, 458, SpringLayout.WEST,
@@ -204,7 +219,7 @@ public class AccountScreen extends JPanel {
 				this);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.accountsAtThisBankComboBox, 656, SpringLayout.WEST,
 				this);
-		this.accountsAtThisBankComboBox.setToolTipText("Hier finden Sie Ihre andere Konten bei dieser Bank");
+		this.accountsAtThisBankComboBox.setToolTipText("Hier finden Sie Ihre anderen Konten bei dieser Bank");
 		add(this.accountsAtThisBankComboBox);
 	}
 
@@ -329,5 +344,13 @@ public class AccountScreen extends JPanel {
 
 	public JButton getLogoutButton() {
 		return logoutButton;
+	}
+	
+	public JButton getOpenTransferWindowButton() {
+		return transferButton;
+	}
+	
+	public ItemClickAwareComboBox<String> getCombobox() {
+		return accountsAtThisBankComboBox;
 	}
 }

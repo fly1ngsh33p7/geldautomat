@@ -1,9 +1,9 @@
 package model;
 
-public abstract class Account {
+public abstract class Account implements Comparable<Account> {
 	private int accountNumber;
 	private int pin;
-	private double balance; //TODO ist das hier wirklich als PROZENT interpretiert?? 
+	private double balance;
 	private Bank bank;
 	private Owner owner;
 	
@@ -17,6 +17,7 @@ public abstract class Account {
 	}
 	
 	public abstract String getAccountType();
+	public abstract boolean withdrawMoney(double amount);
 	
 	public boolean depositMoney(double amount) {
 		// a negative amount cannot be deposited
@@ -30,26 +31,11 @@ public abstract class Account {
 		return true;
 	}
 	
-	public boolean withdrawMoney(double amount) {
-		// a negative amount cannot be withdrawn
-		if (amount < 0) {
-			return false;
-		}
-		
-		double newAmount = this.getBalance() - amount;
-
-		// if this a SavingsAccount, don't allow a negative balance
-		if (this instanceof SavingAccount) {
-			if ( newAmount < 0 ) {
-				return false; 
-			}
-		}
-		
-		this.setBalance(newAmount);
-		
-		//return true to show that this operation succeeded
-		return true;
-	}
+	@Override
+    public int compareTo(Account otherAccount) {
+        // Compare based on accountNumber
+        return Integer.compare(this.accountNumber, otherAccount.accountNumber);
+    }
 	
 	public int getAccountNumber() {
 		return accountNumber;
@@ -63,7 +49,7 @@ public abstract class Account {
 		return balance;
 	}
 	
-	private void setBalance(double balance) {
+	protected void setBalance(double balance) {
 		this.balance = balance;
 	}
 	

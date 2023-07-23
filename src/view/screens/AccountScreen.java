@@ -1,9 +1,7 @@
 package view.screens;
 
 import java.awt.Dimension;
-import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -46,7 +44,7 @@ public class AccountScreen extends JPanel {
 		initLogoutButton();
 		initDepositWindowButton();
 		initWithdrawWindowButton();
-		initTransferButton(); //TODO
+		initTransferButton();
 		
 		initLabels();
 		initActualLabels();
@@ -71,8 +69,6 @@ public class AccountScreen extends JPanel {
 			
 			//activate the ItemListener
 			this.accountsAtThisBankComboBox.setInInitMode(false);
-		} else {
-			resetCombobox();
 		}
 	}
 	
@@ -123,13 +119,14 @@ public class AccountScreen extends JPanel {
 	    }
 
 	    // set currentAccount as SelectedItem
-        accountsAtThisBankComboBox.setSelectedItem(currentAccount);
+	    if (currentAccount != null) {
+	    	accountsAtThisBankComboBox.setSelectedItem(currentAccount);
+	    } else {
+	    	accountsAtThisBankComboBox.setSelectedIndex(-1);
+	    }
+        // TODO test/try this
 	}
 	
-	private void resetCombobox() {
-		// TODO reset Combobox
-	}
-
 	private void initLabels() {
 		initAccountNumber();
 		initFirstNameLastName();

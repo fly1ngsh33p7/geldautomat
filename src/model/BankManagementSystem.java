@@ -8,10 +8,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * BankManagementSystem creates all the Bank, Account and Owner objects from the provided databaseFile.
+ * BankManagementSystem has all the Account objects from the provided databaseFile.
+ * It therefore has all the Banks and Owners (these can be found in the accounts).
+ * 
  * It is a Singleton, so there can be only one BankManagementSystem instance.
  * 
- * This is the Control part of MVC.
  */
 public class BankManagementSystem {
 	private static BankManagementSystem instance;
@@ -40,6 +41,33 @@ public class BankManagementSystem {
     		return instance;
     	}
     	return instance;
+    }
+    
+    public boolean transferMoney(Account from, Account to, double amount, boolean skipIsWithinOverdraftAmountCheck) throws NegativeAmountException, AmountHigherThanMoneyWithOverdraftAmountException, UserCanOnlyAffordWithOverdraftException, NotEnoughMoneyException {
+    	// check if the account can afford the amount (only if skipIsWithinOverdraftAmountCheck is not set)
+    	if (from instanceof CheckingAccount && !skipIsWithinOverdraftAmountCheck) {
+    		// throw an Exception when the account would get into overdraft 
+    		if ( ((CheckingAccount) from).canUserAffordOnlyWithOverdraft(amount) ) {
+    			throw new UserCanOnlyAffordWithOverdraftException();
+    		}
+    	} 
+
+    	// check if there is enough money (normal SavingAccount Check - CheckingAccount: see if balance + overdraft is enough)
+		if (!from.canUserAfford(amount)) {
+			throw new NotEnoughMoneyException();
+		}
+    	
+    	// transfer the amount "from" -> "to" 
+    	try {
+			from.withdrawMoney(amount);
+		} catch (NegativeAmountException | NotEnoughMoneyException e) {
+			// there shouldn't be an error anymore //FIXME wtf?
+			return false; //TODO maybe rethrow?
+		}
+    	// if withdrawing was successful:
+    	to.depositMoney(amount);
+    	
+    	return true;
     }
     
     /**

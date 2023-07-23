@@ -30,7 +30,7 @@ public class LoginScreen extends JPanel {
 		initInputRequiredLabels();
 	}
 
-	public void initFields() {
+	private void initFields() {
 		this.passwordField = new JPasswordField();
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.passwordField, 120, SpringLayout.NORTH, this);
 		this.springLayout.putConstraint(SpringLayout.WEST, this.passwordField, 150, SpringLayout.WEST, this);
@@ -89,31 +89,31 @@ public class LoginScreen extends JPanel {
 	 * Initializes the labels that need no interaction, therefore local variables
 	 * are enough.
 	 */
-	public void initLabels() {
-		JLabel pageLabel = new JLabel("Bankautomat");
+	private void initLabels() {
+		pageLabel = new JLabel("Bankautomat");
 		this.springLayout.putConstraint(SpringLayout.NORTH, pageLabel, 12, SpringLayout.NORTH, this);
 		this.springLayout.putConstraint(SpringLayout.WEST, pageLabel, 12, SpringLayout.WEST, this);
 		this.springLayout.putConstraint(SpringLayout.EAST, pageLabel, -266, SpringLayout.EAST, this);
 		add(pageLabel);
 
 		// JTextField labels
-		JLabel bankCodeLabel = new JLabel("BLZ");
+		bankCodeLabel = new JLabel("BLZ");
 		this.springLayout.putConstraint(SpringLayout.NORTH, bankCodeLabel, 59, SpringLayout.NORTH, this);
 		this.springLayout.putConstraint(SpringLayout.WEST, bankCodeLabel, 105, SpringLayout.WEST, this);
 		add(bankCodeLabel);
 
-		JLabel accountNumberLabel = new JLabel("Kontonummer");
+		accountNumberLabel = new JLabel("Kontonummer");
 		this.springLayout.putConstraint(SpringLayout.NORTH, accountNumberLabel, 91, SpringLayout.NORTH, this);
 		this.springLayout.putConstraint(SpringLayout.WEST, accountNumberLabel, 33, SpringLayout.WEST, this);
 		add(accountNumberLabel);
 
-		JLabel passwordLabel = new JLabel("Passwort");
+		passwordLabel = new JLabel("Passwort");
 		this.springLayout.putConstraint(SpringLayout.NORTH, passwordLabel, 122, SpringLayout.NORTH, this);
 		this.springLayout.putConstraint(SpringLayout.WEST, passwordLabel, 65, SpringLayout.WEST, this);
 		add(passwordLabel);
 	}
 
-	public void initInputRequiredLabels() {
+	private void initInputRequiredLabels() {
 		this.bankCodeRequiredLabel = new JLabel("* bitte ausfüllen");
 		this.springLayout.putConstraint(SpringLayout.WEST, this.bankCodeRequiredLabel, 9, SpringLayout.EAST, this.inputBlz);
 		this.springLayout.putConstraint(SpringLayout.EAST, this.bankCodeRequiredLabel, -5, SpringLayout.EAST, this);
@@ -142,7 +142,7 @@ public class LoginScreen extends JPanel {
 		add(this.passwordRequiredLabel);
 	}
 
-	public void initLoginButton() {
+	private void initLoginButton() {
 		this.loginButton = new JButton("Login");
 		springLayout.putConstraint(SpringLayout.NORTH, this.loginButton, 155, SpringLayout.NORTH, this);
 		springLayout.putConstraint(SpringLayout.WEST, this.loginButton, 165, SpringLayout.WEST, this);
@@ -167,6 +167,7 @@ public class LoginScreen extends JPanel {
 	}
 	
 	/**
+	 * TODO: do I want this?
 	 *	 Removes characters from a JTextField based on a specified regular expression pattern.
 	 *
 	 *	 @param field The JTextField from which characters will be removed.

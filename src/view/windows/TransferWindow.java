@@ -3,11 +3,19 @@ package view.windows;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.SpringLayout;
+
+import model.NotEnoughMoneyException;
+import view.BooleanConsumer;
+import view.TransferBooleanConsumer;
+
 import javax.swing.JLabel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -19,25 +27,40 @@ public class TransferWindow extends JFrame {
 	private JLabel toLabel;
 	private JLabel bankCodeLabel;
 	private JLabel amountLabel;
-	private JTextField bankCodeField;
-	private JTextField amountField;
 	private JLabel currencyLabel;
 	private JLabel accountNumberLabel;
+	private JTextField bankCodeField;
+	private JTextField amountField;
 	private JTextField accountNumberField;
 	private JButton cancelButton;
 	private JButton transferButton;
 	
 	private JPanel panel;
 	private SpringLayout springLayout;
+	
+	private Runnable onCloseOperation;
+	private JFrame parentFrame;
+	private TransferBooleanConsumer<String, Integer, Double> transferMoney;
 
-	public TransferWindow(JFrame parentFrame, Runnable onCloseOperation) {
+	public TransferWindow() {
 		setPreferredSize(new Dimension(470, 140));
 		setResizable(false);
 
 		panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
 		setTitle("Überweisen");
-
+	}
+	
+	public TransferWindow(JFrame parentFrame, TransferBooleanConsumer<String, Integer, Double> transferMoney, Runnable onCloseOperation) {
+		this();
+		setParentFrameTransferMoneyConsumerAndOnCloseOperation(parentFrame, transferMoney, onCloseOperation);
+	}
+	
+	public void setParentFrameTransferMoneyConsumerAndOnCloseOperation(JFrame parentFrame, TransferBooleanConsumer<String, Integer, Double> transferMoney, Runnable onCloseOperation) {
+		this.parentFrame = parentFrame;
+		this.transferMoney = transferMoney;
+		this.onCloseOperation = onCloseOperation;
+		
 		// Add a WindowListener to handle the closing event when clicking the (X)-button
 		if (onCloseOperation != null) {
 			addWindowListener(new WindowAdapter() {
@@ -47,11 +70,16 @@ public class TransferWindow extends JFrame {
 				}
 			});
 		}
-
+		
 		initialize();
 
 		setLocationRelativeTo(parentFrame);
 		pack();
+	}
+	
+	public void closeWindow() {
+		onCloseOperation.run();
+		dispose();
 	}
 
 	private void initialize() {
@@ -64,8 +92,62 @@ public class TransferWindow extends JFrame {
 		initCurrencyLabel();
 		initAccountNumberLabel();
 		initAccountNumberField();
-		initCancelButton();
-		initTransferButton();
+		initButtons();
+	}
+	
+	private void initButtons() {
+		this.cancelButton = new JButton("Abbrechen");
+		this.springLayout.putConstraint(SpringLayout.NORTH, this.cancelButton, 110, SpringLayout.NORTH, this.panel);
+		this.springLayout.putConstraint(SpringLayout.WEST, this.cancelButton, 345, SpringLayout.WEST, this.panel);
+		this.springLayout.putConstraint(SpringLayout.EAST, this.cancelButton, 464, SpringLayout.WEST, this.panel);
+		cancelButton.addActionListener(e -> {
+			// clear the fields
+			bankCodeField.setText("");
+			amountField.setText("");
+			accountNumberField.setText("");
+			
+			// Run onCloseAction and close the transfer window
+			onCloseOperation.run();
+			dispose();
+		});
+		
+		
+		this.transferButton = new JButton("Überweisen");
+		this.springLayout.putConstraint(SpringLayout.NORTH, this.transferButton, 110, SpringLayout.NORTH, this.panel);
+		this.springLayout.putConstraint(SpringLayout.WEST, this.transferButton, 220, SpringLayout.WEST, this.panel);
+
+		// Add the submit action 
+		ActionListener onSubmit = e -> onSubmitFunction();
+		transferButton.addActionListener(onSubmit);
+		
+		KeyAdapter submitOnEnter = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+	        		onSubmitFunction();
+	            }
+			}
+		};
+		bankCodeField.addKeyListener(submitOnEnter);
+		amountField.addKeyListener(submitOnEnter);
+		accountNumberField.addKeyListener(submitOnEnter);
+		
+		panel.add(this.cancelButton);
+		panel.add(this.transferButton);
+	}
+	
+	private void onSubmitFunction() {
+		if (!this.bankCodeField.getText().equals("") && !this.amountField.getText().equals("") && !this.accountNumberField.getText().equals("")) {
+			
+			// run transferMoney
+			boolean wasOperationSuccessful = transferMoney.accept(this.bankCodeField.getText(), Integer.parseInt(this.accountNumberField.getText()), Double.parseDouble(this.amountField.getText())); // TODO gescheites Parsing wie bei den anderen stellen auch
+			
+			// Close the transfer window if it was successful:
+			if (wasOperationSuccessful) {
+				onCloseOperation.run();
+				dispose();
+			}
+		}
 	}
 
 	private void initTransferScreenLabel() {
@@ -138,20 +220,5 @@ public class TransferWindow extends JFrame {
 		this.springLayout.putConstraint(SpringLayout.EAST, this.accountNumberField, 433, SpringLayout.WEST, this.panel);
 		panel.add(this.accountNumberField);
 		this.accountNumberField.setColumns(10);
-	}
-
-	private void initCancelButton() {
-		this.cancelButton = new JButton("Abbrechen");
-		this.springLayout.putConstraint(SpringLayout.NORTH, this.cancelButton, 110, SpringLayout.NORTH, this.panel);
-		this.springLayout.putConstraint(SpringLayout.WEST, this.cancelButton, 345, SpringLayout.WEST, this.panel);
-		this.springLayout.putConstraint(SpringLayout.EAST, this.cancelButton, 464, SpringLayout.WEST, this.panel);
-		panel.add(this.cancelButton);
-	}
-
-	private void initTransferButton() {
-		this.transferButton = new JButton("Überweisen");
-		this.springLayout.putConstraint(SpringLayout.NORTH, this.transferButton, 110, SpringLayout.NORTH, this.panel);
-		this.springLayout.putConstraint(SpringLayout.WEST, this.transferButton, 220, SpringLayout.WEST, this.panel);
-		panel.add(this.transferButton);
 	}
 }

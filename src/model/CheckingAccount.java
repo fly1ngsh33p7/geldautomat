@@ -11,23 +11,26 @@ public class CheckingAccount extends Account {
 		this.overdraftAmount = overdraftAmount;
 	}
 	
-	public boolean withdrawMoney(double amount) {
-		// a negative amount cannot be withdrawn
+	public boolean canUserAffordOnlyWithOverdraft(double amount) throws NegativeAmountException {
+		double newAmount = this.getBalance() - amount;
+		
+		return (canUserAfford(amount) && newAmount < 0);
+	}
+	
+	public boolean canUserAfford(double amount) throws NegativeAmountException {
 		if (amount < 0) {
-			return false;
+			throw new NegativeAmountException();
 		}
 		
 		double newAmount = this.getBalance() - amount;
 		
-		// this is a CheckingAccount: only allow a negative balance within the overdraft amount
-		if (newAmount < -overdraftAmount) {
-			return false;
-		}
-		
-		this.setBalance(newAmount);
-		
-		//return true to show that this operation succeeded
-		return true;
+		// return true if the resulting amount is more (= less debt) than 
+		// the overdraft amount (negative because overdraftAmount = "allowed debt")
+		return newAmount > -overdraftAmount;
+	}
+	
+	public double getAvailableMoney() {
+		return this.getBalance() + this.getOverdraftAmount();
 	}
 	
 	public String getAccountType() {

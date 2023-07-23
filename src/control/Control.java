@@ -11,7 +11,11 @@ import javax.swing.JPanel;
 import java.awt.CardLayout;
 
 import model.Account;
+import model.AmountHigherThanMoneyWithOverdraftAmountException;
 import model.BankManagementSystem;
+import model.NegativeAmountException;
+import model.NotEnoughMoneyException;
+import model.UserCanOnlyAffordWithOverdraftException;
 import view.View;
 import view.screens.AccountScreen;
 import view.screens.LoginScreen;
@@ -19,6 +23,7 @@ import view.windows.Popup;
 import view.windows.TransferWindow;
 import view.windows.DepositOrWithdrawWindow;
 import view.BooleanConsumer;
+import view.TransferBooleanConsumer;
 
 public class Control {
     private BankManagementSystem bms;
@@ -37,12 +42,6 @@ public class Control {
         setupGUI();
         this.view.getFrame().setResizable(false);
     }
-    
-    public void setIsWithdrawOrDepositWindowOpen(boolean newValue) {
-    	this.isWithdrawOrDepositWindowOpen = newValue;
-    }
-    
-    // TODO how to order functions?
     
     private void setupGUI() {
         setupLoginScreen();
@@ -96,15 +95,22 @@ public class Control {
         		
         		BooleanConsumer<Double> withdrawMoney = amount -> {
         			//if currentAccount.withdrawMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
-        			if(!this.bms.getCurrentAccount().withdrawMoney(amount)) {
-        				Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null);
+        			try {
+						this.bms.getCurrentAccount().withdrawMoney(amount);
+					} catch (NegativeAmountException nae) {
+						Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null); 
         				return false;
-        			}
+					} catch (NotEnoughMoneyException neme) {
+						Popup.display("Info", "Nicht genug Geld auf dem Konto, der Betrag ist zu hoch.", "ok", null, null); //TODO fenster nicht schließen!
+						return false;
+					}
+    				
         			return true;
         		};
         		
         		Runnable onCloseOperation = () -> {
         			setIsWithdrawOrDepositWindowOpen(false);
+        			// update AcountScreen
         			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
         		};
         		
@@ -120,15 +126,18 @@ public class Control {
         		
         		BooleanConsumer<Double> depositMoney = amount -> {
         			//if currentAccount.depositMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
-        			if(!this.bms.getCurrentAccount().depositMoney(amount)) {
-        				Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null); //TODO negativer Betrag: nicht zulassen, um overdraftAmount mit boolean handeln zu können? oder ENUM flag (OK, NEG, OVER) oder so?  
+        			try {
+	        			this.bms.getCurrentAccount().depositMoney(amount);
+        				return true;
+        			} catch(NegativeAmountException ex) {
+        				Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null); //TODO transfer fenster NICHT schließen
         				return false;
         			}
-        			return true;
         		};
         		
         		Runnable onCloseOperation = () -> {
         			setIsWithdrawOrDepositWindowOpen(false);
+        			// update AcountScreen
         			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
         		};
         		
@@ -158,7 +167,43 @@ public class Control {
         			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
         		};
         		
-        		TransferWindow transferWindow = new TransferWindow(frame, onCloseOperation);
+        		// declared here to make it available in the Consumers and Runnables
+        		TransferWindow transferWindow = new TransferWindow();
+        		
+        		//TODO comment, WHY such Consumers are needed (MVC)
+        		TransferBooleanConsumer<String, Integer, Double> transferMoney = (bankCode, accountNumber, amount) -> {
+        			Account to = bms.getAccountByBankCodeAndAccountNumber(bankCode, accountNumber);
+        			
+        			Runnable onOkOperationAfterPopupAskingConsent = () -> {
+    					try {
+    						bms.transferMoney(this.bms.getCurrentAccount(), to, amount, true);
+    						
+    						// TODO: close the popup (should happen automatically) & close the transferWindow
+    						transferWindow.closeWindow();
+    					} catch (NegativeAmountException | AmountHigherThanMoneyWithOverdraftAmountException
+    							| UserCanOnlyAffordWithOverdraftException | NotEnoughMoneyException e1) {
+    						// there should not be any Exception thrown here.
+    					}
+    				};
+        			
+        			if (to != null) {
+        				try {
+							return bms.transferMoney(this.bms.getCurrentAccount(), to, amount, false);
+						} catch (NegativeAmountException nae) {
+							Popup.displayOnlyWithOkButton("Info", "Ein negativer Betrag kann nicht überwiesen werden.", "OK");
+						} catch (AmountHigherThanMoneyWithOverdraftAmountException ahtmwoae) {
+							Popup.displayOnlyWithOkButton("Info", "Der Betrag geht über die zugelassene Überziehung hinaus.", "OK");
+						} catch (NotEnoughMoneyException neme) {
+							Popup.displayOnlyWithOkButton("Info", "Nicht genug Geld auf dem Konto.", "OK");
+						} catch (UserCanOnlyAffordWithOverdraftException ucoawoe) {
+							Popup.display("Warnung", "Nach Überweisung befindet sich der Kontostand im Soll, trotzdem überweisen?", "Ja", "Nein", onOkOperationAfterPopupAskingConsent, onCloseOperation);
+							// TODO ich muss hier iwi ein return rausbringen, falls das gut ging. but how??
+						}
+        			}
+        			return false; // TODO nicht zumachen! nochmal probieren lassen!
+        		};
+        		
+        		transferWindow.setParentFrameTransferMoneyConsumerAndOnCloseOperation(frame, transferMoney, onCloseOperation);
         		transferWindow.setVisible(true);
         	}
         });
@@ -190,6 +235,10 @@ public class Control {
     	} else {
     		Popup.display("Info", "Login fehlgeschlagen", "OK", "Programm beenden", () -> System.exit(0));
     	}
+    }
+    
+    public void setIsWithdrawOrDepositWindowOpen(boolean newValue) {
+    	this.isWithdrawOrDepositWindowOpen = newValue;
     }
     
 }

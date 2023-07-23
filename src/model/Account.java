@@ -17,18 +17,24 @@ public abstract class Account implements Comparable<Account> {
 	}
 	
 	public abstract String getAccountType();
-	public abstract boolean withdrawMoney(double amount);
+	public abstract boolean canUserAfford(double amount) throws NegativeAmountException;
 	
-	public boolean depositMoney(double amount) {
+	public void withdrawMoney(double amount) throws NegativeAmountException, NotEnoughMoneyException {
+		// check if this account can afford it
+		if (!canUserAfford(amount)) { // TODO könnte das in Account!?
+			throw new NotEnoughMoneyException();
+		}
+		
+		this.setBalance(this.getBalance() - amount);
+	}
+	
+	public void depositMoney(double amount) throws NegativeAmountException {
 		// a negative amount cannot be deposited
 		if (amount < 0) {
-			return false;
+			throw new NegativeAmountException();
 		}
 		
 		this.setBalance(this.getBalance() + amount);
-		
-		//return true to show that this operation succeeded
-		return true;
 	}
 	
 	@Override
@@ -49,7 +55,7 @@ public abstract class Account implements Comparable<Account> {
 		return balance;
 	}
 	
-	protected void setBalance(double balance) {
+	public void setBalance(double balance) {
 		this.balance = balance;
 	}
 	

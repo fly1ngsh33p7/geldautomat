@@ -2,7 +2,6 @@ package view.windows;
 
 import javax.swing.*;
 
-import model.Account;
 import view.BooleanConsumer;
 import view.KeyAdapterWithSelectSupport;
 
@@ -103,6 +102,7 @@ public class DepositOrWithdrawWindow extends JFrame {
 		}
 	}
 	
+	//TODO is this wanted? maybe just to remove "€" oder so
 	private void formatToNumber(JTextField inputField) {
         try {
             String text = inputField.getText();

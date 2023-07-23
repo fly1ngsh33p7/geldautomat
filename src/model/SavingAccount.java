@@ -9,24 +9,11 @@ public class SavingAccount extends Account {
 		this.interest = interest;
 	}
 	
-	@Override
-	public boolean withdrawMoney(double amount) {
-		// a negative amount cannot be withdrawn
+	public boolean canUserAfford(double amount) throws NegativeAmountException {
 		if (amount < 0) {
-			return false;
+			throw new NegativeAmountException();
 		}
-		
-		double newAmount = this.getBalance() - amount;
-
-		// this a SavingsAccount: don't allow a negative balance
-		if ( newAmount < 0 ) {
-			return false; 
-		}
-		
-		this.setBalance(newAmount);
-		
-		//return true to show that this operation succeeded
-		return true;
+		return (this.getBalance() - amount) > 0;
 	}
 	
 	public String getAccountType() {

@@ -10,14 +10,6 @@ public class Owner {
 	private String location;
 	private String street;
 	
-	public int getCustomerNumber() {
-		return customerNumber;
-	}
-	
-	public void setCustomerNumber(int customerNumber) {
-		this.customerNumber = customerNumber;
-	}
-	
 	public Owner(int customerNumber, String lastName, String firstName, String postalCode, String location,
 			String street) {
 		this.customerNumber = customerNumber;
@@ -27,7 +19,15 @@ public class Owner {
 		this.location = location;
 		this.street = street;
 	}
-
+	
+	public int getCustomerNumber() {
+		return customerNumber;
+	}
+	
+	public void setCustomerNumber(int customerNumber) {
+		this.customerNumber = customerNumber;
+	}
+	
 	public String getLastName() {
 		return lastName;
 	}

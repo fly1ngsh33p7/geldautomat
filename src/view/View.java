@@ -6,6 +6,7 @@ import view.screens.AccountScreen;
 import view.screens.LoginScreen;
 
 import java.awt.*;
+import java.util.concurrent.Delayed;
 
 public class View {
 	public static final String LOGIN_SCREEN_KEY = "login";
@@ -57,14 +58,15 @@ public class View {
     	Dimension newDim;
     	if (screenKey.equals(ACCOUNT_SCREEN_KEY)) {
     		newDim = this.accountScreen.getPreferredSize();
-    	} else { //if (screenKey.equals(LOGIN_SCREEN_KEY)) {
+    	} else { // screenKey: LOGIN_SCREEN_KEY
     		newDim = this.loginScreen.getPreferredSize();
     	}
+    	//FIXME: LoginScreen sieht beim Logout kaputt aus (funktioniert aber), ist zu groß, obwohl in dieser function die korrekte Größe gesetzt wird
         this.frame.setSize(newDim);
         
-        this.frame.setResizable(false);
-        this.getCardPanel().repaint();  //FIXME: LoginScreen sieht beim Logout kaputt aus, ist zu groß, obwohl in dieser function die korrekte Größe gesetzt wird
+        this.getCardPanel().repaint();  
         this.getCardPanel().revalidate();
+        this.frame.setResizable(false);
     }
     
     public LoginScreen getLoginScreen() {

@@ -149,15 +149,17 @@ public class DataImportHelper {
 	    		String lastName = data.get(9).get(currentAccountIndex);
 	    		String firstName = data.get(10).get(currentAccountIndex);
 	    		String street = data.get(11).get(currentAccountIndex);
-	    		String postalCode = data.get(12).get(currentAccountIndex);
+	    		String postalCode = removePossibleLeadingSingleQuote(data.get(12).get(currentAccountIndex));
 	    		String location = data.get(13).get(currentAccountIndex);
+	    		
+	    		
 	    		
 	    		Owner currentOwner = new Owner(customerNumber, lastName, firstName, postalCode, location, street);
 	    		//------------------------------
 	    		
 	    		//---extract-the-current-account---
-	    		int accountNumber = Integer.parseInt(data.get(2).get(currentAccountIndex));
-	    		int pin = Integer.parseInt(data.get(3).get(currentAccountIndex));
+	    		int accountNumber = Integer.parseInt(removePossibleLeadingSingleQuote(data.get(2).get(currentAccountIndex)));
+	    		int pin = Integer.parseInt(removePossibleLeadingSingleQuote(data.get(3).get(currentAccountIndex)));
 	    		double balance = sanitizeAndParseDouble(data.get(4).get(currentAccountIndex));
 	    		String accountType= data.get(5).get(currentAccountIndex);
 	    		String rawInterestString = data.get(6).get(currentAccountIndex);
@@ -165,11 +167,9 @@ public class DataImportHelper {
 	    		
 	    		switch (accountType) {
 	    			case "Sparkonto":
-	    				// this adds not *the original* Bank/Owner, but one that's equal to it. This shouldn't cause problems but is not perfect.
 	    				accounts.add(new SavingAccount(accountNumber, pin, balance, currentBank, currentOwner, sanitizeAndParseDouble(rawInterestString)));
 	    				break;
 	    			case "Girokonto":
-	    				// this adds not *the original* Bank/Owner, but one that's equal to it. This shouldn't cause problems but is not perfect.
 	    				accounts.add(new CheckingAccount(accountNumber, pin, balance, currentBank, currentOwner, sanitizeAndParseDouble(rawOverdraftAmountString)));
 	    				break;
 					default:
@@ -183,7 +183,7 @@ public class DataImportHelper {
     }
     
     /**
-     * Fills the given sets of banks, accounts, and owners from the data read from a database file.
+     * Fills the given accounts set from the data read from a database file.
      *
      * This method is designed to take class fields representing sets of banks, accounts, and owners as parameters,
      * and populate them with data read from a database file. It performs the following steps:
@@ -225,6 +225,19 @@ public class DataImportHelper {
     	// replace the German decimal separation comma with a dot
     	String replacedGermanDecimalSeparator = removedThousandSeparators.replace(",", ".");
         return Double.parseDouble(replacedGermanDecimalSeparator);
+    }
+    
+    /**
+     * Takes a String input and tries to remove a leading ' if possible.
+     * 
+     * @param String input
+     * @return String without a leading '
+     */
+    public static String removePossibleLeadingSingleQuote(String text) {
+    	if (text.charAt(0) == '\'') {
+    		text.substring(1);
+    	}
+    	return text;
     }
 
 	public void setData(List<List<String>> data) {

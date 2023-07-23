@@ -104,7 +104,7 @@ public class DataImportHelper {
 	 * accounts, but there can be duplicate banks and owners.
 	 * 
 	 */
-    private static List<List<String>> getDataByColumn(File file) {
+    public static List<List<String>> getDataByColumn(File file) {
         List<List<String>> columns = new ArrayList<>();
 
         // open the file with the correct charset to display German characters
@@ -134,7 +134,7 @@ public class DataImportHelper {
         return columns;
     }
     
-    private void extractFromData(Set<Account> accounts, BankManagementSystem bms) {
+    public void extractFromData(Set<Account> accounts, BankManagementSystem bms) {
     	try {
 	    	for (int currentAccountIndex = 0; currentAccountIndex < data.get(0).size(); currentAccountIndex++) {
 	    		//---extract-the-current-Bank---

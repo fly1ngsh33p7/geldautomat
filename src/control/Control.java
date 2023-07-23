@@ -13,13 +13,9 @@ import javax.swing.JPanel;
 import java.awt.CardLayout;
 
 import model.Account;
-import model.AmountHigherThanMoneyWithOverdraftAmountException;
 import model.Bank;
 import model.BankManagementSystem;
-import model.NegativeAmountException;
-import model.NotEnoughMoneyException;
 import model.Owner;
-import model.UserCanOnlyAffordWithOverdraftException;
 import view.View;
 import view.screens.AccountScreen;
 import view.screens.LoginScreen;
@@ -28,6 +24,10 @@ import view.windows.TransferWindow;
 import view.windows.DepositOrWithdrawWindow;
 import view.BooleanConsumer;
 import view.TransferBooleanConsumer;
+import model.exception.NegativeAmountException;
+import model.exception.NotEnoughMoneyException;
+import model.exception.AmountHigherThanMoneyWithOverdraftAmountException;
+import model.exception.UserCanOnlyAffordWithOverdraftException;
 
 /**
  * The Control class is responsible for controlling the application's flow and user interface. It communicates with the BankManagementSystem

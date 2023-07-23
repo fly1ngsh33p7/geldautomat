@@ -1,5 +1,6 @@
 package model;
 
+import model.exception.NegativeAmountException;
 
 /**
  * The CheckingAccount class represents a specific type of bank account known as a "Girokonto" (checking account).

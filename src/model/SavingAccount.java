@@ -1,5 +1,6 @@
 package model;
 
+import model.exception.NegativeAmountException;
 
 /**
  * The SavingAccount class represents a type of bank account known as a "Sparkonto" (savings account).

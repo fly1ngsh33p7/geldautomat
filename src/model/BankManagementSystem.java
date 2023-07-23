@@ -3,6 +3,11 @@ package model;
 import java.util.HashSet;
 import java.util.Set;
 
+import model.exception.AmountHigherThanMoneyWithOverdraftAmountException;
+import model.exception.NegativeAmountException;
+import model.exception.NotEnoughMoneyException;
+import model.exception.UserCanOnlyAffordWithOverdraftException;
+
 /**
  * The BankManagementSystem class represents a system that manages all the Account objects from the provided databaseFile.
  * It holds references to all Banks and Owners associated with these accounts.

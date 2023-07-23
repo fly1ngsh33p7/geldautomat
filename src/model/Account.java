@@ -2,6 +2,9 @@ package model;
 
 import java.util.Objects;
 
+import model.exception.NegativeAmountException;
+import model.exception.NotEnoughMoneyException;
+
 /**
  * The abstract class representing a generic bank account.
  * <p>

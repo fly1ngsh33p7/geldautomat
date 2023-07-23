@@ -25,17 +25,33 @@ import view.windows.DepositOrWithdrawWindow;
 import view.BooleanConsumer;
 import view.TransferBooleanConsumer;
 
+/**
+ * The Control class is responsible for controlling the application's flow and user interface. It communicates with the BankManagementSystem
+ * and View classes to manage the interactions between the user, the data, and the graphical interface.
+ * 
+ * It allows users to log in and access their accounts, perform various banking operations, and manage their account details.
+ * 
+ * The Control class initializes the GUI components, sets up event listeners, and controls the transition between different screens
+ * (e.g., login screen and account screen).
+ */
 public class Control {
     private BankManagementSystem bms;
     private View view;
     
-    private boolean isWithdrawOrDepositWindowOpen;
+    // this prevents opening more than one of these windows
+    private boolean isWithdrawOrDepositOrTransferWindowOpen;
 
+    /**
+     * Constructs a new Control object with the specified BankManagementSystem and View instances.
+     *
+     * @param bms  The BankManagementSystem to interact with the data and perform banking operations.
+     * @param view The View to manage the graphical user interface and display information to the user.
+     */
     public Control(BankManagementSystem bms, View view) {
         this.bms = bms;
         this.view = view;
         
-        this.isWithdrawOrDepositWindowOpen = false;
+        this.isWithdrawOrDepositOrTransferWindowOpen = false;
         
         // Add an ActionListener to the LoginButton
         this.view.getFrame().setResizable(true);
@@ -43,6 +59,10 @@ public class Control {
         this.view.getFrame().setResizable(false);
     }
     
+    /**
+     * Sets up the graphical user interface by initializing and configuring the login screen and account screen.
+     * It also displays the login screen initially.
+     */
     private void setupGUI() {
         setupLoginScreen();
         setupAccountScreen();
@@ -53,6 +73,11 @@ public class Control {
         this.view.getFrame().setVisible(true);
     }
     
+    /**
+     * Sets up the login screen by adding necessary event listeners to the components. When the login button is clicked or the enter key is pressed
+     * while focus is on any of the input fields (bank code, account number, or password), the method performs the login process by calling the
+     * {@link #performLogin(LoginScreen, CardLayout, JPanel)} method.
+     */
     private void setupLoginScreen() {
     	LoginScreen loginScreen = this.view.getLoginScreen();
     	JButton loginButton = loginScreen.getLoginButton();
@@ -67,41 +92,50 @@ public class Control {
         	}
         });
         
+    	// pressing Enter when in LoginScreen is equivalent to clicking the login button
         KeyAdapter performLoginOnEnter = new KeyAdapter() {
-        	// keyTyped() is already used to format the text
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					// Perform login when the enter key is pressed
 	        		performLogin(loginScreen, cardLayout, cardPanel);
 	            }
 			}
 		};
-        
+		// Add the KeyAdapter to the input fields (bank code, account number, and password)
         loginScreen.getInputBlz().addKeyListener(performLoginOnEnter);
         loginScreen.getPasswordField().addKeyListener(performLoginOnEnter);
         loginScreen.getInputAccountNumber().addKeyListener(performLoginOnEnter);
     }
     
+    /**
+     * The setupAccountScreen method configures the graphical user interface for the account screen and sets up event listeners
+     * for various buttons and components on the account screen. It allows users to perform account-related operations such as
+     * withdrawing money, depositing money, transferring money, and switching between accounts.
+     */
     private void setupAccountScreen() {
     	AccountScreen accountScreen = this.view.getAccountScreen();
     	JFrame frame = this.view.getFrame();
     	
         // Create a button on the account screen to switch back to the login screen 
-        accountScreen.getLogoutButton().addActionListener(e -> this.view.changeScreen(View.LOGIN_SCREEN_KEY)); //TODO cleanup fields in AccountScreen??
+        accountScreen.getLogoutButton().addActionListener(e -> {
+        	this.view.changeScreen(View.LOGIN_SCREEN_KEY);
+        	accountScreen.resetActualAccountLabels();
+        }); //TODO cleanup ComboBox?
 
         accountScreen.getOpenWithdrawWindowButton().addActionListener(e -> {
-        	if (!isWithdrawOrDepositWindowOpen) {
-        		isWithdrawOrDepositWindowOpen = true;
+        	if (!isWithdrawOrDepositOrTransferWindowOpen) {
+        		isWithdrawOrDepositOrTransferWindowOpen = true;
         		
         		BooleanConsumer<Double> withdrawMoney = amount -> {
-        			//if currentAccount.withdrawMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
+        			//if this.bms.getCurrentAccount().withdrawMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
         			try {
 						this.bms.getCurrentAccount().withdrawMoney(amount);
 					} catch (NegativeAmountException nae) {
 						Popup.display("Info", "Der Betrag darf nicht negativ sein.", "ok", null, null); 
         				return false;
 					} catch (NotEnoughMoneyException neme) {
-						Popup.display("Info", "Nicht genug Geld auf dem Konto, der Betrag ist zu hoch.", "ok", null, null); //TODO fenster nicht schließen!
+						Popup.display("Info", "Nicht genug Geld auf dem Konto, der Betrag ist zu hoch.", "ok", null, null);
 						return false;
 					}
     				
@@ -114,15 +148,15 @@ public class Control {
         			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
         		};
         		
-		        // Open the small window
+		        // Open the small window for withdrawing money
 		        DepositOrWithdrawWindow depositOrWithdrawWindow = new DepositOrWithdrawWindow(frame, "Auszahlen", withdrawMoney, onCloseOperation);
 		        depositOrWithdrawWindow.setVisible(true);
         	}
         });
 
         accountScreen.getOpenDepositWindowButton().addActionListener(e -> {
-        	if (!isWithdrawOrDepositWindowOpen) {
-        		isWithdrawOrDepositWindowOpen = true;
+        	if (!isWithdrawOrDepositOrTransferWindowOpen) {
+        		isWithdrawOrDepositOrTransferWindowOpen = true;
         		
         		BooleanConsumer<Double> depositMoney = amount -> {
         			//if currentAccount.depositMoney(amount) FAILED, do not close DepositOrWithdrawWindow -> return false;
@@ -141,7 +175,7 @@ public class Control {
         			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
         		};
         		
-		        // Open the small window
+		        // Open the small window for depositing money
 		        DepositOrWithdrawWindow depositOrWithdrawWindow = new DepositOrWithdrawWindow(frame, "Einzahlen", depositMoney, onCloseOperation);
 		        depositOrWithdrawWindow.setVisible(true);
         	}
@@ -158,8 +192,8 @@ public class Control {
         
         
         accountScreen.getOpenTransferWindowButton().addActionListener(e -> {
-        	if (!isWithdrawOrDepositWindowOpen) {
-        		isWithdrawOrDepositWindowOpen = true;
+        	if (!isWithdrawOrDepositOrTransferWindowOpen) {
+        		isWithdrawOrDepositOrTransferWindowOpen = true;
         		
         		Runnable onCloseOperation = () -> {
         			setIsWithdrawOrDepositWindowOpen(false);
@@ -167,18 +201,18 @@ public class Control {
         			accountScreen.setValuesOfActualAccountLabels(this.bms.getCurrentAccount());
         		};
         		
-        		// declared here to make it available in the Consumers and Runnables
+        		// // Initialize the TransferWindow to perform money transfer in the Consumers and Runnables
         		TransferWindow transferWindow = new TransferWindow();
         		
-        		//TODO comment, WHY such Consumers are needed (MVC)
+        		// Define a TransferBooleanConsumer to handle transfer operations
         		TransferBooleanConsumer<String, Integer, Double> transferMoney = (bankCode, accountNumber, amount) -> {
         			Account to = bms.getAccountByBankCodeAndAccountNumber(bankCode, accountNumber);
         			
         			Runnable onOkOperationAfterPopupAskingConsent = () -> {
     					try {
+    						// Transfer money (with overdraft) from the current account to the specified account
     						bms.transferMoney(this.bms.getCurrentAccount(), to, amount, true);
     						
-    						// TODO: close the popup (should happen automatically) & close the transferWindow
     						transferWindow.closeWindow();
     					} catch (NegativeAmountException | AmountHigherThanMoneyWithOverdraftAmountException
     							| UserCanOnlyAffordWithOverdraftException | NotEnoughMoneyException e1) {
@@ -196,19 +230,29 @@ public class Control {
 						} catch (NotEnoughMoneyException neme) {
 							Popup.displayOnlyWithOkButton("Info", "Nicht genug Geld auf dem Konto.", "OK");
 						} catch (UserCanOnlyAffordWithOverdraftException ucoawoe) {
+							// Ask for user consent to proceed with the transfer even if the account will be in debt
 							Popup.display("Warnung", "Nach Überweisung befindet sich der Kontostand im Soll, trotzdem überweisen?", "Ja", "Nein", onOkOperationAfterPopupAskingConsent, onCloseOperation);
-							// TODO ich muss hier iwi ein return rausbringen, falls das gut ging. but how??
 						}
         			}
-        			return false; // TODO nicht zumachen! nochmal probieren lassen!
+        			return false;
         		};
         		
+        		 // Set the TransferWindow with appropriate consumers and runnables
         		transferWindow.setParentFrameTransferMoneyConsumerAndOnCloseOperation(frame, transferMoney, onCloseOperation);
         		transferWindow.setVisible(true);
         	}
         });
     }
    
+    /**
+     * Performs the login process using the provided login credentials from the LoginScreen.
+     * If the correct credentials are provided, it switches to the AccountScreen, updates the current account in the BankManagementSystem (BMS),
+     * and displays the account details on the AccountScreen. If the login fails, it displays an error message using a popup.
+     *
+     * @param loginScreen The LoginScreen object containing the user's input for the login process.
+     * @param cardLayout  The CardLayout used to manage the card panels in the main frame.
+     * @param cardPanel   The main panel that holds the card container for switching between different screens.
+     */
     private void performLogin(LoginScreen loginScreen, CardLayout cardLayout, JPanel cardPanel) {
     	String bankCode = loginScreen.getInputBlz().getText();
     	char[] pinCharArray = loginScreen.getPasswordField().getPassword();
@@ -233,12 +277,13 @@ public class Control {
     		loginScreen.getPasswordField().setText("");
     		loginScreen.getInputBlz().setText("");
     	} else {
+    		// Display an error message using a Popup
     		Popup.display("Info", "Login fehlgeschlagen", "OK", "Programm beenden", () -> System.exit(0));
     	}
     }
     
     public void setIsWithdrawOrDepositWindowOpen(boolean newValue) {
-    	this.isWithdrawOrDepositWindowOpen = newValue;
+    	this.isWithdrawOrDepositOrTransferWindowOpen = newValue;
     }
     
 }

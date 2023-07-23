@@ -5,7 +5,24 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+/**
+ * The LoginScreen class represents a graphical user interface panel for the login screen in a bank application.
+ * It extends the JPanel class and contains components such as text fields, labels, and buttons for user interaction.
+ * The class provides methods for initializing and managing the login screen components, validating user input, and displaying hints for required fields.
+ * 
+ * The login screen includes input fields for the bank code, account number, and password, as well as a login button.
+ * It also displays required labels to indicate that certain fields need to be filled before the user can proceed with login.
+ * 
+ * The class includes methods to initialize the components, set up input fields, and manage visibility of the required labels based on user input.
+ * It also provides methods to retrieve the login button, password field, bank code field, and account number field for further interaction with the user interface.
+ * 
+ * Note: The class uses a SpringLayout for component positioning. The method {@link #areFieldsFilledAndShowHints()} checks if the required fields are filled and displays hints accordingly.
+ * The method {@link #removeCharactersFromField(JTextField, String)} is a helper method to remove specific characters from a JTextField based on a specified regular expression pattern.
+ * 
+ * @see javax.swing.JPanel
+ */
 public class LoginScreen extends JPanel {
+	// Components for the login screen
 	private JButton loginButton;
 	private JPasswordField passwordField;
 	private JTextField inputBlz;
@@ -19,6 +36,11 @@ public class LoginScreen extends JPanel {
 	private JLabel accountNumberLabel;
 	private JLabel passwordLabel;
 
+	/**
+	 * Constructs a new LoginScreen object.
+	 * The constructor sets up the login screen components by calling initialization methods.
+	 * It sets the preferred size of the panel and uses a SpringLayout to manage component positioning.
+	 */
 	public LoginScreen() {
 		setPreferredSize(new Dimension(380, 270));
 		this.springLayout = new SpringLayout();
@@ -29,7 +51,62 @@ public class LoginScreen extends JPanel {
 		initFields();
 		initInputRequiredLabels();
 	}
+	
+	/**
+	 * Checks whether the input fields for the bank code (BLZ), account number, and password are filled and displays visual hints if any field is empty.
+	 * The method evaluates the text content of each input field to determine if it is empty or contains no characters.
+	 * It also sets the visibility of corresponding JLabels (bankCodeRequiredLabel, accountNumberRequiredLabel, and passwordRequiredLabel) to indicate which fields are required to be filled.
+	 * The JLabels serve as visual hints to the user by displaying an asterisk (*) and a message "bitte ausfüllen" (please fill) beside empty fields.
+	 *
+	 * @return 'true' if all required fields (bank code, account number, and password) are filled; otherwise, 'false'.
+	 * @see javax.swing.JTextField#getText()
+	 * @see javax.swing.JLabel#setVisible(boolean)
+	 */
+	public boolean areFieldsFilledAndShowHints() {
+		boolean isInputBlzEmpty = inputBlz.getText().isEmpty();
+		boolean isInputAccountNumberEmpty = inputAccountNumber.getText().isEmpty();
+		boolean isPasswordFieldEmpty = passwordField.getPassword().length == 0;
+		
+		// set the visibility to the opposite 
+		bankCodeRequiredLabel.setVisible(isInputBlzEmpty);
+		accountNumberRequiredLabel.setVisible(isInputAccountNumberEmpty);
+		passwordRequiredLabel.setVisible(isPasswordFieldEmpty);
 
+		return !isInputBlzEmpty && !isInputAccountNumberEmpty && !isPasswordFieldEmpty;
+	}
+	
+	//TODO: do I want this?
+	/**
+	 *	 Removes characters from a JTextField based on a specified regular expression pattern.
+	 *
+	 * @param field The JTextField from which characters will be removed.
+	 * @param characterRegexToMatch The regular expression pattern specifying the characters to be removed.
+	 * @see javax.swing.JTextField#getText()
+	 * @see javax.swing.JTextField#setText(String)
+	 * @see java.lang.String#replaceAll(String, String)
+	 */
+	private void removeCharactersFromField(JTextField field, String characterRegexToMatch) {
+		String text = field.getText();
+        text = text.replaceAll(characterRegexToMatch, ""); // Remove characters that match characterRegexToMatch
+        field.setText(text);
+	}
+
+	// init methods
+	
+	/**
+	 * The `initFields()` method initializes the input fields for the password, bank code (BLZ), and account number.
+	 * It creates and configures the password field, bank code field, and account number field, adding appropriate listeners to enforce input constraints.
+	 * The method sets the preferred positions for these fields using the SpringLayout manager.
+	 * 
+	 * The `initFields()` method adds the password, bank code, and account number fields to the panel to make them visible to the user.
+	 * These fields are part of the graphical user interface that users interact with during the login process of the bank application.
+	 * The fields are positioned in the specified coordinates on the panel based on their respective constraints.
+	 * 
+	 * @see javax.swing.JPasswordField
+	 * @see javax.swing.JTextField
+	 * @see javax.swing.SpringLayout
+	 * @see javax.swing.KeyAdapter
+	 */
 	private void initFields() {
 		this.passwordField = new JPasswordField();
 		this.springLayout.putConstraint(SpringLayout.NORTH, this.passwordField, 120, SpringLayout.NORTH, this);
@@ -153,31 +230,7 @@ public class LoginScreen extends JPanel {
 		add(loginButton);
 	}
 
-	public boolean areFieldsFilledAndShowHints() {
-		boolean isInputBlzEmpty = inputBlz.getText().isEmpty();
-		boolean isInputAccountNumberEmpty = inputAccountNumber.getText().isEmpty();
-		boolean isPasswordFieldEmpty = passwordField.getPassword().length == 0;
-		
-		// set the visibility to the opposite 
-		bankCodeRequiredLabel.setVisible(isInputBlzEmpty);
-		accountNumberRequiredLabel.setVisible(isInputAccountNumberEmpty);
-		passwordRequiredLabel.setVisible(isPasswordFieldEmpty);
-
-		return !isInputBlzEmpty && !isInputAccountNumberEmpty && !isPasswordFieldEmpty;
-	}
-	
-	/**
-	 * TODO: do I want this?
-	 *	 Removes characters from a JTextField based on a specified regular expression pattern.
-	 *
-	 *	 @param field The JTextField from which characters will be removed.
-	 *   @param characterRegexToMatch The regular expression pattern specifying the characters to be removed.
-	 */
-	private void removeCharactersFromField(JTextField field, String characterRegexToMatch) {
-		String text = field.getText();
-        text = text.replaceAll(characterRegexToMatch, ""); // Remove characters that match characterRegexToMatch
-        field.setText(text);
-	}
+	// getter
 
 	public JButton getLoginButton() {
 		return loginButton;

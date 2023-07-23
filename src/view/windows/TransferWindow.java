@@ -22,6 +22,19 @@ import java.awt.event.WindowEvent;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 
+
+/**
+ * The TransferWindow class represents a small window for conducting a money transfer between accounts.
+ * It extends the JFrame class and provides functionality for entering transfer details, such as bank code, account number, and amount.
+ * The window includes "Abbrechen" and "Überweisen" buttons for canceling the transfer and initiating the transfer, respectively.
+ * 
+ * The TransferWindow can be used to prompt the user for transfer details, and when the "Überweisen" button is clicked,
+ * the provided TransferBooleanConsumer is invoked to perform the transfer operation.
+ * The window can be closed either by clicking the "Abbrechen" button or the window's close button (X).
+ * 
+ * Note: The class includes two constructors - one default constructor and one constructor with parameters for setting up the window
+ * with the specified parent frame, transferMoney action, and onCloseOperation action.
+ */
 public class TransferWindow extends JFrame {
 	private JLabel transferScreenLabel;
 	private JLabel toLabel;
@@ -42,6 +55,10 @@ public class TransferWindow extends JFrame {
 	private JFrame parentFrame;
 	private TransferBooleanConsumer<String, Integer, Double> transferMoney;
 
+	/**
+	 * Default constructor for creating a TransferWindow instance.
+	 * This constructor sets up the basic attributes of the window, such as preferred size and title, and initializes the main panel.
+	 */
 	public TransferWindow() {
 		setPreferredSize(new Dimension(470, 140));
 		setResizable(false);
@@ -51,11 +68,33 @@ public class TransferWindow extends JFrame {
 		setTitle("Überweisen");
 	}
 	
+	/**
+	 * Constructor for creating a TransferWindow instance with specified parameters for parent frame, transferMoney action, and onCloseOperation action.
+	 * It calls the default constructor to set up the basic attributes of the window and then proceeds to set the provided parameters for the TransferWindow.
+	 * The specified parent frame defines the window's parent frame or the frame relative to which the TransferWindow will be displayed.
+	 * The transferMoney parameter is a TransferBooleanConsumer representing the action to be executed when the user initiates the transfer by clicking the "Überweisen" button.
+	 * The transferMoney action is responsible for processing the transfer based on the entered details, and it should return true if the operation is successful, or false if there is an error.
+	 * The onCloseOperation parameter is a Runnable representing an optional action to be executed when the window is closed. It can be used to perform any clean-up or handle specific behavior upon window closure.
+	 * This action will be triggered before the window is closed.
+	 * 
+	 * @param parentFrame The parent frame or the frame relative to which the TransferWindow will be displayed.
+	 * @param transferMoney The action to be executed when the user initiates the transfer by clicking the "Überweisen" button.
+	 * @param onCloseOperation An optional action to be executed when the window is closed. It is triggered before the window is closed.
+	 */
 	public TransferWindow(JFrame parentFrame, TransferBooleanConsumer<String, Integer, Double> transferMoney, Runnable onCloseOperation) {
 		this();
 		setParentFrameTransferMoneyConsumerAndOnCloseOperation(parentFrame, transferMoney, onCloseOperation);
 	}
 	
+	/**
+	 * Sets the parent frame, transferMoney action, and onCloseOperation action for the TransferWindow instance.
+	 * This method is used when creating a TransferWindow with specified parameters after the default constructor has been called.
+	 * It sets up the provided parameters for the TransferWindow and initializes the window layout and components.
+	 * 
+	 * @param parentFrame The parent frame or the frame relative to which the TransferWindow will be displayed.
+	 * @param transferMoney The action to be executed when the user initiates the transfer by clicking the "Überweisen" button.
+	 * @param onCloseOperation An optional action to be executed when the window is closed. It is triggered before the window is closed.
+	 */
 	public void setParentFrameTransferMoneyConsumerAndOnCloseOperation(JFrame parentFrame, TransferBooleanConsumer<String, Integer, Double> transferMoney, Runnable onCloseOperation) {
 		this.parentFrame = parentFrame;
 		this.transferMoney = transferMoney;
@@ -77,11 +116,47 @@ public class TransferWindow extends JFrame {
 		pack();
 	}
 	
+	/**
+	 * Closes the TransferWindow and runs the onCloseOperation action.
+	 * This method is used to close the window programmatically when the transfer is completed or canceled.
+	 * It also triggers the provided onCloseOperation action before closing the window.
+	 */
 	public void closeWindow() {
 		onCloseOperation.run();
 		dispose();
 	}
+	
+	/**
+	 * The onSubmitFunction method is a private helper method used in the TransferWindow class.
+	 * It is responsible for processing the transfer when the user clicks the "Überweisen" button in the transfer window.
+	 * The method first checks if the bank code, account number, and amount fields are not empty before proceeding with the transfer.
+	 * If all the required fields have valid values, the method invokes the provided transferMoney action to perform the transfer.
+	 * The transferMoney action takes the entered bank code, account number, and amount as parameters and processes the transfer.
+	 * The action should return true if the transfer is successful and false if there is an error or any issues during the transfer process.
+	 * 
+	 * If the transferMoney action returns true, indicating a successful transfer, the method triggers the onCloseOperation action to perform any cleanup or handle specific behavior upon window closure.
+	 * Finally, the method closes the transfer window by invoking the dispose() method on the window instance.
+	 * 
+	 * Note: Proper validation and parsing of input data are essential for a successful transfer process. It is important to ensure that the input data is in the correct format and valid for processing the transfer.
+	 * If the input data is invalid or any exceptions occur during the parsing or transfer process, they should be appropriately handled to provide meaningful feedback to the user.
+	 * 
+	 */
+	private void onSubmitFunction() {
+		if (!this.bankCodeField.getText().equals("") && !this.amountField.getText().equals("") && !this.accountNumberField.getText().equals("")) {
+			
+			// run transferMoney
+			boolean wasOperationSuccessful = transferMoney.accept(this.bankCodeField.getText(), Integer.parseInt(this.accountNumberField.getText()), Double.parseDouble(this.amountField.getText())); // TODO gescheites Parsing wie bei den anderen stellen auch
+			
+			// Close the transfer window if it was successful:
+			if (wasOperationSuccessful) {
+				onCloseOperation.run();
+				dispose();
+			}
+		}
+	}
 
+	// init fields
+	
 	private void initialize() {
 		initTransferScreenLabel();
 		initToLabel();
@@ -136,20 +211,6 @@ public class TransferWindow extends JFrame {
 		panel.add(this.transferButton);
 	}
 	
-	private void onSubmitFunction() {
-		if (!this.bankCodeField.getText().equals("") && !this.amountField.getText().equals("") && !this.accountNumberField.getText().equals("")) {
-			
-			// run transferMoney
-			boolean wasOperationSuccessful = transferMoney.accept(this.bankCodeField.getText(), Integer.parseInt(this.accountNumberField.getText()), Double.parseDouble(this.amountField.getText())); // TODO gescheites Parsing wie bei den anderen stellen auch
-			
-			// Close the transfer window if it was successful:
-			if (wasOperationSuccessful) {
-				onCloseOperation.run();
-				dispose();
-			}
-		}
-	}
-
 	private void initTransferScreenLabel() {
 		springLayout = new SpringLayout();
 		this.panel.setLayout(springLayout);

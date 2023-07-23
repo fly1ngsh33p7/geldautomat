@@ -11,6 +11,37 @@ import model.Owner;
 import model.SavingAccount;
 import view.ItemClickAwareComboBox;
 
+/**
+ * The AccountScreen class represents a graphical user interface panel for displaying account information and providing
+ * various account-related functionalities.
+ * <p>
+ * The panel contains buttons for logging out, opening deposit and withdrawal windows, and initiating transfers between
+ * accounts. It also displays account details such as account number, owner name, address, bank information, account type,
+ * balance, and overdraft amount or interest rate, depending on the account type.
+ * <p>
+ * This class extends the {@link JPanel} and uses the {@link SpringLayout} to arrange its components.
+ * <p>
+ * Example usage:
+ * <pre>
+ * {@code
+ * // Creating an AccountScreen object
+ * AccountScreen accountScreen = new AccountScreen();
+ *
+ * // Setting account details and updating the UI
+ * Account currentAccount = ...; // Retrieve the current account from the system
+ * List<Account> accountListToDisplay = ...; // Retrieve the list of accounts to be displayed in the combo box
+ * int selectedIndex = ...; // Determine the index of the currently selected account in the combo box
+ * accountScreen.setActualAccountLabelsAndCombobox(currentAccount, accountListToDisplay, selectedIndex);
+ *
+ * // Display the AccountScreen in a JFrame or other container
+ * JFrame frame = new JFrame("Account Screen");
+ * frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+ * frame.add(accountScreen);
+ * frame.pack();
+ * frame.setVisible(true);
+ * }
+ * </pre>
+ */
 public class AccountScreen extends JPanel {
 	private JButton logoutButton;
 	private JButton openDepositWindowButton;
@@ -52,6 +83,14 @@ public class AccountScreen extends JPanel {
 		initComboBox();
 	}
 
+	/**
+     * Sets the account details and updates the UI components with the provided account information.
+     *
+     * @param account           The current account to be displayed.
+     * @param accountListToDisplay The list of accounts to be displayed in the combo box.
+     * @param selectedIndex     The index of the currently selected account in the combo box.
+     *                           Set to -1 if none is selected.
+     */
 	public void setActualAccountLabelsAndCombobox(Account account, List<Account> accountListToDisplay, int selectedIndex) {
 		//TODO this method is a mess: when do we call which method and why? -> more methods?
 		if (account != null) {
@@ -72,6 +111,11 @@ public class AccountScreen extends JPanel {
 		}
 	}
 	
+	/**
+     * Sets the values of the actual account labels based on the provided account information.
+     *
+     * @param account The account whose information will be displayed.
+     */
 	public void setValuesOfActualAccountLabels(Account account) {
 		Owner owner = account.getOwner();
 		
@@ -97,7 +141,11 @@ public class AccountScreen extends JPanel {
 		}
 	}
 
-	private void resetActualAccountLabels() {
+	/**
+     * Resets the actual account labels to empty values.
+     * This method is called when no account is selected or available for display.
+     */
+	public void resetActualAccountLabels() {
 		this.actualAccountNumberLabel.setText("");
 		this.actualFirstNameLastNameLabel.setText("");
 		this.actualAddressLabel.setText("");
@@ -108,24 +156,7 @@ public class AccountScreen extends JPanel {
 		this.actualOverdraftAmountOrInterestLabel.setText("");
 	}
 	
-	private void setAccountsAtThisBankInCombobox(Account currentAccount, List<Account> accountList) {
-		accountsAtThisBankComboBox.removeAllItems(); // Clear the combo box before adding items
-
-	    // Add each account to the combo box
-	    for (Account account : accountList) {
-	    	String label = account.getAccountNumber() + " (" + account.getAccountType() + ")";
-	        accountsAtThisBankComboBox.addItem(label);
-	        //TODO technically it should be enough to send the index, since another call to getByXYZ() (or the List in BMS/Control) will result in the same result
-	    }
-
-	    // set currentAccount as SelectedItem
-	    if (currentAccount != null) {
-	    	accountsAtThisBankComboBox.setSelectedItem(currentAccount);
-	    } else {
-	    	accountsAtThisBankComboBox.setSelectedIndex(-1);
-	    }
-        // TODO test/try this
-	}
+	// init fields
 	
 	private void initLabels() {
 		initAccountNumber();
@@ -329,6 +360,32 @@ public class AccountScreen extends JPanel {
 		this.springLayout.putConstraint(SpringLayout.WEST, this.actualBankCodeLabel, 0, SpringLayout.WEST, this.actualAccountNumberLabel);
 		this.springLayout.putConstraint(SpringLayout.SOUTH, this.actualBankCodeLabel, 0, SpringLayout.SOUTH, this.bankCodeLabel);
 		add(this.actualBankCodeLabel);
+	}
+	
+	// getters and setters
+	
+	/**
+	 * Populates the accountsAtThisBankComboBox with a list of accounts and sets the currentAccount as the selected item.
+	 *
+	 * @param currentAccount   The account to be set as the selected item in the combo box.
+	 * @param accountList      The list of accounts to be displayed in the combo box.
+	 */
+	private void setAccountsAtThisBankInCombobox(Account currentAccount, List<Account> accountList) {
+		accountsAtThisBankComboBox.removeAllItems(); // Clear the combo box before adding items
+
+	    // Add each account to the combo box
+	    for (Account account : accountList) {
+	    	String label = account.getAccountNumber() + " (" + account.getAccountType() + ")";
+	        accountsAtThisBankComboBox.addItem(label);
+	    }
+
+	    // set currentAccount as SelectedItem
+	    if (currentAccount != null) {
+	    	accountsAtThisBankComboBox.setSelectedItem(currentAccount);
+	    } else {
+	    	accountsAtThisBankComboBox.setSelectedIndex(-1);
+	    }
+        // TODO test/try this
 	}
 	
 	public JButton getOpenWithdrawWindowButton() {
